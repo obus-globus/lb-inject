@@ -1,5 +1,4 @@
-import java.awt.Window;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
@@ -27,15 +26,13 @@ public final class NfToast {
             String html = "<html><body style='width:430px;font-family:sans-serif'>"
                     + escape(msg).replace("\n", "<br>") + "</body></html>";
 
-            JFrame owner = new JFrame();
-            owner.setAlwaysOnTop(true);
-            owner.setUndecorated(true);
-            owner.setType(Window.Type.UTILITY);
-            owner.setLocation(-2000, -2000);
-            owner.setVisible(true);
-
-            JOptionPane.showMessageDialog(owner, html, "nf-inject", type);
-            owner.dispose();
+            JOptionPane pane = new JOptionPane(html, type);
+            JDialog dlg = pane.createDialog(null, "nf-inject");
+            dlg.setAlwaysOnTop(true);
+            dlg.setLocationRelativeTo(null);   // centre on the screen
+            dlg.setModal(true);
+            dlg.setVisible(true);              // blocks until the user clicks OK
+            dlg.dispose();
         } catch (Throwable t) {
             System.out.println("nf-inject: " + (args.length > 1 ? args[1] : ""));
         }
