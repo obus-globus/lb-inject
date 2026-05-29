@@ -143,6 +143,22 @@
     globalThis.Inject = Inject;
 })();
 
+// --- LiquidBounce auto-load guard -------------------------------------------
+// LB auto-loads EVERY .js in scripts/ as a standalone script and rejects any
+// that doesn't call registerScript() ("missing required information!"). This
+// file is a *library* meant to be load()ed by your own script — but if it also
+// sits in scripts/ it gets auto-loaded too. Registering benign info here turns
+// that stray auto-load into a harmless empty script instead of a red error.
+//
+// When you load() this from your own script, do it BEFORE your own
+// registerScript(...) call so yours overwrites this one (registerScript just
+// sets name/version/authors on the per-file script and is safe to call twice).
+try {
+    if (typeof registerScript === "function") {
+        registerScript({ name: "nf-inject (library)", version: "1.0.0", authors: ["lb-inject"] });
+    }
+} catch (e) { /* not running inside a LiquidBounce script context (e.g. REPL) */ }
+
 // Point the freshly-defined Inject at the self-extracted agent jar.
 (function () {
     if (typeof globalThis.Inject !== "undefined" && globalThis.__NF_BUNDLED_AGENT_JAR) {

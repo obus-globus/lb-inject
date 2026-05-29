@@ -105,3 +105,12 @@ provides.)
   — use the correct names for the version you run against.
 - `remove`/`removeAll` restore the original bytecode (`removeTransformer` +
   retransform), then drop the hook.
+- LiquidBounce auto-loads **every** `.js` in `scripts/` as a standalone script,
+  so the library file (`nf-inject.js` / `nf-inject-bundled.js`) gets loaded on
+  its own too. To avoid a "missing required information" error, the library
+  calls `registerScript(...)` with benign info, so that stray load is just a
+  harmless empty script named `nf-inject (library)` in your script list.
+- In your own script, `load()` the library **before** your `registerScript(...)`
+  so your registration takes precedence.
+- Modules only activate **in-game** — toggling a module that injects (like the
+  example) does nothing at the main menu; join a world first.
