@@ -22,11 +22,11 @@ rm -rf build && mkdir -p build/holder build/agent dist
 "$JAVAC" --release 21 -d build/holder src/NfHolder.java
 "$JAR" cf dist/nf-holder.jar -C build/holder NfHolder.class
 
-# 2. NfInject + NfAttacher -> nf-inject-agent.jar (ASM bundled), references NfHolder
+# 2. NfInject + NfAttacher -> nf-inject-agent.jar. ASM is NOT bundled: Fabric
+#    Loader already ships ASM on the classpath, and bundling it triggers Fabric's
+#    "duplicate ASM classes" verifyClasspath check. We only compile against ASM.
 "$JAVAC" --release 21 --add-modules jdk.attach -cp "$ASM_JAR:build/holder" -d build/agent src/NfInject.java src/NfAttacher.java
-( cd build/agent && "$JAR" xf "$ASM_JAR" org )   # bundle ASM classes
-rm -rf build/agent/META-INF
-cat > build/agent/MANIFEST.MF <<'EOF'
+cat > build/MANIFEST.MF <<'EOF'
 Manifest-Version: 1.0
 Premain-Class: NfInject
 Agent-Class: NfInject
@@ -34,6 +34,6 @@ Can-Retransform-Classes: true
 Can-Redefine-Classes: true
 Boot-Class-Path: nf-holder.jar
 EOF
-"$JAR" cfm dist/nf-inject-agent.jar build/agent/MANIFEST.MF \
-    -C build/agent NfInject.class -C build/agent NfAttacher.class -C build/agent org
+# include ALL compiled classes (NfInject + its anonymous inner classes NfInject$1.. + NfAttacher)
+"$JAR" cfm dist/nf-inject-agent.jar build/MANIFEST.MF -C build/agent .
 echo "built dist/nf-inject-agent.jar ($(du -h dist/nf-inject-agent.jar|cut -f1)) + dist/nf-holder.jar ($(du -h dist/nf-holder.jar|cut -f1))"
