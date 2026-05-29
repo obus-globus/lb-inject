@@ -70,10 +70,33 @@ classloader loads the agent.
 ## Build
 
 ```bash
-./build.sh            # -> dist/nf-inject-agent.jar  (needs a JDK 21 at JAVA_HOME)
+./build.sh            # -> dist/nf-inject-agent.jar + dist/nf-holder.jar (needs JDK 21 at JAVA_HOME)
+./make-bundle.sh      # -> dist/nf-inject-bundled.js (optional single-file build; run after build.sh)
 ```
 
-The jar is generic — build it once and reuse it for any script/injection.
+The jars are generic — build once and reuse for any script/injection.
+
+## Single-file bundle (optional)
+
+`make-bundle.sh` produces `dist/nf-inject-bundled.js`: both jars embedded as
+base64. `load()` it like `nf-inject.js`, but you only ship **one** file — on
+load it self-extracts the jars to a cache dir (`<java.io.tmpdir>/nf-inject/`,
+holder kept next to the agent so the manifest's relative `Boot-Class-Path`
+resolves) and points `Inject.agentJar` there.
+
+```js
+load("/abs/path/nf-inject-bundled.js");   // defines globalThis.Inject
+Inject.inject("net.minecraft.client.Minecraft", "getFps", "HEAD", fn);
+```
+
+This only helps the **runtime-attach path** (JDK runtime, e.g. GraalVM): the
+attach API loads the agent from a filesystem path at the moment you inject, so
+self-extracting just-in-time works. The **`-javaagent` path can't use the
+bundle** — that flag is read by the JVM at launch (before any script runs) and
+needs the jar on disk then, so those users still ship `nf-inject-agent.jar` +
+`nf-holder.jar`. (There's no in-memory route: `loadAgent` takes a file, and
+defining classes in memory would itself require the `Instrumentation` the jar
+provides.)
 
 ## Notes / caveats
 
