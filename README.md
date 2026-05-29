@@ -16,6 +16,20 @@ var h = Inject.inject("net.minecraft.client.Minecraft", "getFps", "HEAD",
 Inject.remove(h);   Inject.list();   Inject.removeAll();
 ```
 
+## Download
+
+Grab the prebuilt files from the [**Releases**](https://github.com/obus-globus/lb-inject/releases)
+page (latest: [v1.0.0](https://github.com/obus-globus/lb-inject/releases/latest)):
+
+- **`nf-inject-bundled-<ver>.js`** — recommended; single file with both jars
+  embedded, self-extracts on load. Drop it in your LiquidBounce `scripts/` (it
+  relocates itself into `scripts/lib/`).
+- **`nf-inject-<ver>.js`** + **`nf-inject-agent.jar`** + **`nf-holder.jar`** — the
+  plain library and its jars, for the `-javaagent` route (the holder jar must sit
+  next to the agent jar).
+
+Or build from source with `./build.sh` (+ `./make-bundle.sh`) — see [Build](#build).
+
 ## Files
 
 | file | what |
