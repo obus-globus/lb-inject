@@ -10,8 +10,9 @@ Two flavours:
 - `inject-always-on.js` — **no module**; hooks are installed at script load and
   stay active for the whole session.
 
-Both auto-detect the library (`nf-inject.js` preferred, else `nf-inject-bundled.js`)
-and share the same run/setup steps below.
+Both load the library via an `ensureLib("1.0.0")` preamble (finds the versioned
+library in `scripts/lib/`, or a stray copy in `scripts/`) and share the same
+run/setup steps below.
 
 ## `inject-example.js`
 
