@@ -136,14 +136,15 @@ provides.)
   `examples/` does both).
 - Modules only activate **in-game** — toggling a module that injects (like the
   example) does nothing at the main menu; join a world first.
-- The library surfaces events as a LiquidBounce **toast notification** (visible
-  even at the title screen, where the chat overlay isn't shown) **and** a chat
-  message: when it relocates a stray copy into `scripts/lib/`, when injection
-  can't be enabled (with the exact `-javaagent:<jar>` arg to add, or "use a JDK
-  like GraalVM"), and when an `inject(...)` fails (e.g. a class/method name that
-  doesn't match your MC version). Set `Inject.quiet = true` to suppress the
-  informational ones (error notifications still show). `Inject.notify(msg,
-  severity)` (`severity ∈ "INFO" | "SUCCESS" | "ERROR"`) is reusable from your
-  script. (Relocation/load-time messages happen at the title screen, so the
-  toast is what you'll actually see — the chat line only shows once you're
-  in-game.)
+- The library surfaces events three ways: a chat message, a LiquidBounce toast,
+  and — because neither is visible at the title screen — a **modal Swing message
+  box** the user must click OK on (it briefly freezes the game thread; that's
+  intentional, so a startup/error message can't be missed). It fires when the
+  library relocates a stray copy into `scripts/lib/`, when injection can't be
+  enabled (with the exact `-javaagent:<jar>` arg to add, or "use a JDK like
+  GraalVM"), and when an `inject(...)` fails (e.g. a class/method name that
+  doesn't match your MC version). The message box uses `javax.swing` from the
+  JDK (no extra deps, nothing added to the jars); it's skipped on a headless
+  runtime. Set `Inject.quiet = true` to suppress the informational box/toast
+  (error notifications still show). `Inject.notify(msg, severity)`
+  (`severity ∈ "INFO" | "SUCCESS" | "ERROR"`) is reusable from your script.

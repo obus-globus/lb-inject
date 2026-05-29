@@ -58,26 +58,46 @@
         _handles: {},
         _n: 0,
 
-        // Notify the user. Posts BOTH a LiquidBounce toast notification (visible
-        // even at the title screen, where the chat overlay isn't shown) and a chat
-        // message. severity ∈ "INFO" | "SUCCESS" | "ERROR" (default "INFO").
-        // Best-effort: never throws; falls back to stdout if nothing else works.
+        // Notify the user. severity ∈ "INFO" | "SUCCESS" | "ERROR" (default "INFO").
+        // Posts a chat message + a LiquidBounce toast, and — because neither is
+        // visible at the title screen — also a modal Swing message box the user
+        // must click OK on (it blocks the game thread). The message box shows for
+        // ERROR always, and for info/success unless Inject.quiet. Never throws.
         notify(msg, severity) {
-            let shown = false;
-            // 1) toast notification — renders on the menu and in-game.
+            severity = severity || "INFO";
+            const plain = ("" + msg).replace(/§./g, "");       // strip §color codes
+            // 1) LiquidBounce toast (in-game / web UI).
             try {
                 const EM = Java.type("net.ccbluex.liquidbounce.event.EventManager");
                 const NE = Java.type("net.ccbluex.liquidbounce.event.events.NotificationEvent");
                 const Sev = Java.type("net.ccbluex.liquidbounce.event.events.NotificationEvent$Severity");
-                const sev = Sev[severity || "INFO"] || Sev.INFO;
-                const plain = ("" + msg).replace(/§./g, "");   // strip color codes for the toast
-                EM.INSTANCE.callEvent(new NE("nf-inject", plain, sev));
-                shown = true;
+                EM.INSTANCE.callEvent(new NE("nf-inject", plain, Sev[severity] || Sev.INFO));
             } catch (e) { /* notification API unavailable */ }
-            // 2) chat message — persists in the in-game chat history.
-            try { Client.displayChatMessage("" + msg); shown = true; } catch (e) { /* no chat (foreign thread) */ }
-            if (!shown) { try { System_.out.println("" + msg); } catch (e) { /* ignore */ } }
-            return shown;
+            // 2) chat message (persists in the in-game chat history).
+            try { Client.displayChatMessage("" + msg); } catch (e) { /* no chat (foreign thread) */ }
+            // 3) native message box — guaranteed visible, even at the title screen.
+            if (severity === "ERROR" || !this.quiet) this._dialog(plain, severity);
+            try { System_.out.println("[nf-inject] " + plain); } catch (e) { /* ignore */ }
+            return true;
+        },
+
+        // Show a native Swing message box. Called directly on the calling (game)
+        // thread — a plain host-method call, so no GraalJS foreign-thread issue.
+        // It's MODAL: the game blocks until the user clicks OK (intended — the user
+        // must acknowledge). Best-effort: skipped if AWT is unavailable (headless).
+        _dialog(plain, severity) {
+            try {
+                const JOptionPane = Java.type("javax.swing.JOptionPane");
+                const type = severity === "ERROR" ? JOptionPane.ERROR_MESSAGE : JOptionPane.INFORMATION_MESSAGE;
+                const html = "<html><body style='width:430px;font-family:sans-serif'>" +
+                    plain.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</body></html>";
+                const pane = new JOptionPane(html, type);
+                const dlg = pane.createDialog("nf-inject");
+                dlg.setModal(true);
+                dlg.setAlwaysOnTop(true);                       // surface above the (often fullscreen) game
+                dlg.setVisible(true);                           // blocks until the user acknowledges
+                dlg.dispose();
+            } catch (e) { /* AWT unavailable (headless) — toast + chat already fired */ }
         },
 
         _jar() { return this.agentJar ? ("" + this.agentJar) : Paths.get(rootFolder(), "scripts", "lib", "nf-inject-" + VERSION, "nf-inject-agent.jar").toString(); },
