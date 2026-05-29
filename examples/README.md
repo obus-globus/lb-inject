@@ -3,6 +3,16 @@
 Worked examples for the `Inject` API. See the [top-level README](../README.md)
 for the full API reference and how instrumentation is obtained.
 
+Two flavours:
+
+- `inject-example.js` — hooks live inside a **module**; injected on enable,
+  removed on disable (toggle it like any LiquidBounce module).
+- `inject-always-on.js` — **no module**; hooks are installed at script load and
+  stay active for the whole session.
+
+Both auto-detect the library (`nf-inject.js` preferred, else `nf-inject-bundled.js`)
+and share the same run/setup steps below.
+
 ## `inject-example.js`
 
 A self-contained LiquidBounce userscript. It registers a module **InjectDemo**
@@ -54,7 +64,7 @@ disabled:
 
 4. Start the client, open the ClickGUI, and toggle the **InjectDemo** module.
    You'll see a chat line listing the injected hooks on enable, and a removal
-   line on disable.
+   line on disable. (Modules only activate **in-game** — join a world first.)
 
 ### Adapt it
 
@@ -63,3 +73,18 @@ Change the class/method/position to hook whatever you need. Targets are
 for the version you run against (see the mappings link in the top-level README).
 Positions: `HEAD`, `RETURN`, `BEFORE_INVOKE`, `AFTER_INVOKE`, `BEFORE_FIELD`,
 `AFTER_FIELD`.
+
+## `inject-always-on.js`
+
+Same setup as above (drop it in `scripts/` alongside the library), but it
+registers **no module**: it installs a single `tick`-`RETURN` hook at script
+load and keeps it for the whole session (no toggle). It chats `hook installed`
+on load and a heartbeat roughly once a minute. `Minecraft.tick` runs even at the
+main menu, so it's genuinely always-on.
+
+Notes:
+- A script with no module must still call `registerScript(...)` (LB requires it).
+- It guards against double-injection on `.script reload` with a one-shot
+  sentinel (`nf.alwayson.installed` system property), since each reload would
+  otherwise stack another hook.
+- There's no disable path; the hook lives until the game exits.
