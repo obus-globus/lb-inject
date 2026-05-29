@@ -33,25 +33,35 @@ disabled:
    ./build.sh          # -> dist/nf-inject-agent.jar + dist/nf-holder.jar
    ```
 
-2. Copy the deliverables into your LiquidBounce `scripts/` folder. The example
-   auto-detects whichever library file is present (plain preferred), so pick one:
+2. Deploy the library into your LiquidBounce `scripts/` folder. The example
+   calls `ensureLib("1.0.0")`, which looks in `scripts/lib/` first, then falls
+   back to a stray copy in `scripts/` (which the library relocates into
+   `scripts/lib/` on first load). Pick one library flavour:
 
-   **Plain library** (three files):
+   **Single-file bundle** (recommended; jars embedded, self-extracts; runtime-
+   attach path only — see the top-level README):
    ```
    scripts/
-     nf-inject.js            # the library  (from repo root)
-     nf-inject-agent.jar     # from dist/
-     nf-holder.jar           # from dist/   (MUST sit next to the agent jar)
-     inject-example.js       # this example
+     inject-example.js                 # this example
+     lib/
+       nf-inject-bundled-1.0.0.js      # from dist/ (extracts jars into lib/nf-inject-1.0.0/)
    ```
 
-   **Single-file bundle** (jars embedded; runtime-attach path only — see the
-   top-level README):
+   **Plain library** (you supply the jars):
    ```
    scripts/
-     nf-inject-bundled.js    # from dist/ (self-extracts the jars)
-     inject-example.js       # this example
+     inject-example.js                 # this example
+     lib/
+       nf-inject-1.0.0.js              # from dist/
+       nf-inject-1.0.0/
+         nf-inject-agent.jar           # from dist/
+         nf-holder.jar                 # from dist/ (MUST sit next to the agent jar)
    ```
+
+   You can also just drop the library file in `scripts/` (not `lib/`) — it moves
+   itself into `scripts/lib/` on first load. (LB logs a harmless one-line
+   `WARN: Unable to find main inside the directory lib.` — see the top-level
+   README to silence it.)
 
 3. Make sure instrumentation is available (the library auto-detects which):
    - launch LiquidBounce with `-javaagent:nf-inject-agent.jar` (works on **any

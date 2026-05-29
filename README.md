@@ -9,9 +9,10 @@ the agent) lives in one precompiled, generic jar that's shipped with the
 library; the script side is plain JS.
 
 ```js
-load("/abs/path/nf-inject.js");                       // defines globalThis.Inject
+// In your userscript — see examples/ for the ensureLib(...) loader preamble.
+load(ensureLib("1.0.0"));                              // defines globalThis.Inject
 var h = Inject.inject("net.minecraft.client.Minecraft", "getFps", "HEAD",
-          function () { net.ccbluex.liquidbounce.utils.client.ClientChat.chat("getFps!"); });
+          function () { Client.displayChatMessage("getFps!"); });
 Inject.remove(h);   Inject.list();   Inject.removeAll();
 ```
 
@@ -19,12 +20,35 @@ Inject.remove(h);   Inject.list();   Inject.removeAll();
 
 | file | what |
 |---|---|
-| `nf-inject.js` | the script library (`Inject` API). Load/inline it in your script. |
-| `dist/nf-inject-agent.jar` | generic precompiled agent (premain + agentmain + a parameterized ASM injector + the attacher). Ship it in your `scripts/` folder. ASM is **not** bundled — Fabric already provides it (bundling triggers Fabric's "duplicate ASM classes" check). |
+| `nf-inject.js` | the script library source (`Inject` API). `build`/`make-bundle.sh` emit versioned copies into `dist/`. |
+| `dist/nf-inject-<ver>.js` | versioned plain library — deploy this (the version is in the name so multiple versions can coexist). |
+| `dist/nf-inject-bundled-<ver>.js` | versioned single-file build with both jars embedded (self-extracts on load). |
+| `dist/nf-inject-agent.jar` | generic precompiled agent (premain + agentmain + a parameterized ASM injector + the attacher). ASM is **not** bundled — Fabric already provides it (bundling triggers Fabric's "duplicate ASM classes" check). |
 | `dist/nf-holder.jar` | bootstrap state holder, loaded via the agent jar's `Boot-Class-Path`. **Must sit next to `nf-inject-agent.jar`** at runtime. |
-| `examples/inject-example.js` | a worked, self-contained userscript: registers a module that injects HEAD/RETURN/INVOKE hooks on enable and removes them on disable. |
+| `examples/` | worked userscripts (module-toggle + always-on) and their README. |
 | `src/NfInject.java`, `src/NfHolder.java`, `src/NfAttacher.java` | sources for the jars. |
 | `build.sh` | compiles → `dist/nf-inject-agent.jar` + `dist/nf-holder.jar` (JDK 21). |
+| `make-bundle.sh` | emits the versioned `dist/nf-inject-bundled-<ver>.js` + `dist/nf-inject-<ver>.js`. |
+
+## Layout & versioning
+
+Libraries live in **`scripts/lib/`**, named with their version
+(`nf-inject-1.0.0.js` / `nf-inject-bundled-1.0.0.js`). Putting them in a
+subfolder means LiquidBounce does **not** auto-load them as standalone scripts
+(it only auto-loads `main.*` inside a subfolder), and the version in the name
+lets several versions coexist so an old script keeps working when you add a new
+one. Your script pins the version it wants via `ensureLib("1.0.0")` (see
+`examples/`), which exposes itself as `Inject.VERSION`.
+
+If you drop a library file directly in `scripts/` instead, it still works: on
+first load it **relocates itself into `scripts/lib/`**. The bundle's jars
+self-extract into `scripts/lib/nf-inject-<ver>/` (holder kept next to the agent
+so the manifest's relative `Boot-Class-Path` resolves) — not a random temp dir.
+
+> LiquidBounce logs a one-line `WARN: Unable to find main inside the directory
+> lib.` each launch, because it scans every subfolder for a `main.*`. It's
+> harmless. To silence it you may drop a no-op `main.js` (calling
+> `registerScript(...)`) into `scripts/lib/` yourself — we don't ship one.
 
 ## Positions
 
@@ -61,33 +85,30 @@ Bytecode injection needs a `java.lang.instrument.Instrumentation`. `Inject.ensur
 > `jdk.compiler`), so on those the **`-javaagent` route is required**; **GraalVM**
 > (a JDK) supports the runtime-attach route directly.
 
-The injected bytecode is **bootstrap-only** —
-`((Runnable) System.getProperties().get("nf.hook.<id>")).run()` — so the patched
-class (loaded by Fabric's Knot loader) needs to resolve nothing but JDK classes;
-ASM is bundled in the agent jar, so the injector works regardless of which
-classloader loads the agent.
+The injected bytecode calls into the bootstrap-loaded `NfHolder.fire(<id>)` — so
+the patched class (loaded by Fabric's Knot loader) resolves nothing but a
+bootstrap class. ASM is not bundled (Fabric provides it); the agent only
+compiles against it.
 
 ## Build
 
 ```bash
 ./build.sh            # -> dist/nf-inject-agent.jar + dist/nf-holder.jar (needs JDK 21 at JAVA_HOME)
-./make-bundle.sh      # -> dist/nf-inject-bundled.js (optional single-file build; run after build.sh)
+./make-bundle.sh      # -> dist/nf-inject-bundled-<ver>.js + dist/nf-inject-<ver>.js (run after build.sh)
 ```
 
-The jars are generic — build once and reuse for any script/injection.
+The jars are generic — build once and reuse for any script/injection. The
+version comes from the `VERSION` constant in `nf-inject.js`; `make-bundle.sh`
+stamps it into the output filenames.
 
-## Single-file bundle (optional)
+## Single-file bundle
 
-`make-bundle.sh` produces `dist/nf-inject-bundled.js`: both jars embedded as
-base64. `load()` it like `nf-inject.js`, but you only ship **one** file — on
-load it self-extracts the jars to a cache dir (`<java.io.tmpdir>/nf-inject/`,
-holder kept next to the agent so the manifest's relative `Boot-Class-Path`
-resolves) and points `Inject.agentJar` there.
-
-```js
-load("/abs/path/nf-inject-bundled.js");   // defines globalThis.Inject
-Inject.inject("net.minecraft.client.Minecraft", "getFps", "HEAD", fn);
-```
+`make-bundle.sh` produces `dist/nf-inject-bundled-<ver>.js`: both jars embedded
+as base64. You ship **one** file — drop it in `scripts/` (it relocates itself
+into `scripts/lib/`) and `load()` it from your script (use `ensureLib(...)`,
+see `examples/`). On load it self-extracts the jars into
+`scripts/lib/nf-inject-<ver>/` (holder next to the agent so the manifest's
+relative `Boot-Class-Path` resolves) and points `Inject.agentJar` there.
 
 This only helps the **runtime-attach path** (JDK runtime, e.g. GraalVM): the
 attach API loads the agent from a filesystem path at the moment you inject, so

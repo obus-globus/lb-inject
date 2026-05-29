@@ -17,21 +17,33 @@
 // If neither is available, Inject.inject(...) throws with guidance and the error
 // is logged to the Minecraft log (latest.log) as a failed script load.
 
-// Load the library — defines globalThis.Inject. Works with EITHER deliverable:
-//   - nf-inject.js          (plain lib; ship nf-inject-agent.jar + nf-holder.jar too), or
-//   - nf-inject-bundled.js  (single-file build with both jars embedded).
-// Whichever you dropped in scripts/ is auto-detected (plain lib preferred).
+// Load the library (defines globalThis.Inject). The library lives in
+// scripts/lib/ as a versioned file — either of:
+//   - nf-inject-<ver>.js          (plain; ship nf-inject-agent.jar + nf-holder.jar too), or
+//   - nf-inject-bundled-<ver>.js  (single-file build with both jars embedded).
+// ensureLib() finds the requested version in scripts/lib/, or — if you dropped
+// it directly in scripts/ — loads it from there (the library then relocates
+// itself into scripts/lib/ for next time). Pin the version your script targets.
 const _root = "" + Client.configSystem.rootFolder.getAbsolutePath();
-(function () {
+function ensureLib(version) {
     const Files = Java.type("java.nio.file.Files");
     const Paths = Java.type("java.nio.file.Paths");
-    const candidates = ["nf-inject.js", "nf-inject-bundled.js"];
-    for (const name of candidates) {
-        const p = Paths.get(_root, "scripts", name);
-        if (Files.exists(p)) { load(p.toString()); return; }
+    const names = ["nf-inject-" + version + ".js", "nf-inject-bundled-" + version + ".js"];
+    for (const name of names) {                                  // prefer scripts/lib/
+        const p = Paths.get(_root, "scripts", "lib", name);
+        if (Files.exists(p)) return p.toString();
     }
-    throw new Error("InjectDemo: no nf-inject library found in scripts/ (expected one of: " + candidates.join(", ") + ")");
-})();
+    for (const name of names) {                                  // fall back to a stray copy in scripts/
+        const p = Paths.get(_root, "scripts", name);
+        if (Files.exists(p)) return p.toString();
+    }
+    throw new Error("InjectDemo: nf-inject " + version + " not found in scripts/lib/ or scripts/ " +
+        "(expected nf-inject-" + version + ".js or nf-inject-bundled-" + version + ".js)");
+}
+// Tell the library it's being consumed (so it won't treat itself as a stray
+// auto-load), then load it BEFORE our own registerScript(...) below.
+globalThis.__nfLibConsumed = true;
+load(ensureLib("1.0.0"));
 
 const script = registerScript({ name: "InjectDemo", version: "1.0.0", authors: ["Obus"] });
 
