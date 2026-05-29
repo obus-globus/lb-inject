@@ -1,7 +1,7 @@
 # lb-inject
 
 Runtime **bytecode injection** (mixin-style head/return/invoke/field hooks) for
-**LiquidBounce** GraalJS scripts — with **no JDK required at runtime**.
+**LiquidBounce** GraalJS scripts with **no JDK required at runtime**.
 
 A script calls `Inject.inject(class, method, position, hook)` and the library
 rewrites the already-loaded method to call your hook. The heavy lifting (ASM +
