@@ -251,7 +251,9 @@ globalThis.__NF_IS_BUNDLE = true;
             try { Files.move(src, dst, SCO.REPLACE_EXISTING); moved = true; }
             catch (e) { try { Files.copy(src, dst, SCO.REPLACE_EXISTING); Files.deleteIfExists(src); moved = true; } catch (e2) { /* best-effort */ } }
             if (moved && globalThis.Inject && !globalThis.Inject.quiet) {
-                globalThis.Inject.notify("§e[nf-inject] moved §f" + selfName + "§e into scripts/lib/ (keeps your scripts folder tidy).");
+                globalThis.Inject.notify("§a[nf-inject] Auto-moved §f" + selfName + "§a from scripts/ into scripts/lib/ " +
+                    "to keep your scripts folder tidy.\n\n§7No action needed — this was done automatically and your " +
+                    "scripts will keep working.", "SUCCESS");
             }
         }
     } catch (e) { /* best-effort; never break the host */ }
