@@ -136,9 +136,14 @@ provides.)
   `examples/` does both).
 - Modules only activate **in-game** — toggling a module that injects (like the
   example) does nothing at the main menu; join a world first.
-- The library posts in-game **chat notifications**: when it relocates a stray
-  copy into `scripts/lib/`, when injection can't be enabled (with the exact
-  `-javaagent:<jar>` arg to add, or "use a JDK like GraalVM"), and when an
-  `inject(...)` fails (e.g. a class/method name that doesn't match your MC
-  version). Set `Inject.quiet = true` to suppress the informational ones (error
-  notifications still show). `Inject.notify(msg)` is reusable from your script.
+- The library surfaces events as a LiquidBounce **toast notification** (visible
+  even at the title screen, where the chat overlay isn't shown) **and** a chat
+  message: when it relocates a stray copy into `scripts/lib/`, when injection
+  can't be enabled (with the exact `-javaagent:<jar>` arg to add, or "use a JDK
+  like GraalVM"), and when an `inject(...)` fails (e.g. a class/method name that
+  doesn't match your MC version). Set `Inject.quiet = true` to suppress the
+  informational ones (error notifications still show). `Inject.notify(msg,
+  severity)` (`severity ∈ "INFO" | "SUCCESS" | "ERROR"`) is reusable from your
+  script. (Relocation/load-time messages happen at the title screen, so the
+  toast is what you'll actually see — the chat line only shows once you're
+  in-game.)

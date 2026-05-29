@@ -101,11 +101,26 @@ globalThis.__NF_IS_BUNDLE = true;
         _handles: {},
         _n: 0,
 
-        // Notify the user in the in-game chat (falls back to stdout, never throws).
-        notify(msg) {
-            try { Client.displayChatMessage("" + msg); return true; } catch (e) { /* no chat (foreign thread / menu) */ }
-            try { System_.out.println("" + msg); } catch (e) { /* ignore */ }
-            return false;
+        // Notify the user. Posts BOTH a LiquidBounce toast notification (visible
+        // even at the title screen, where the chat overlay isn't shown) and a chat
+        // message. severity ∈ "INFO" | "SUCCESS" | "ERROR" (default "INFO").
+        // Best-effort: never throws; falls back to stdout if nothing else works.
+        notify(msg, severity) {
+            let shown = false;
+            // 1) toast notification — renders on the menu and in-game.
+            try {
+                const EM = Java.type("net.ccbluex.liquidbounce.event.EventManager");
+                const NE = Java.type("net.ccbluex.liquidbounce.event.events.NotificationEvent");
+                const Sev = Java.type("net.ccbluex.liquidbounce.event.events.NotificationEvent$Severity");
+                const sev = Sev[severity || "INFO"] || Sev.INFO;
+                const plain = ("" + msg).replace(/§./g, "");   // strip color codes for the toast
+                EM.INSTANCE.callEvent(new NE("nf-inject", plain, sev));
+                shown = true;
+            } catch (e) { /* notification API unavailable */ }
+            // 2) chat message — persists in the in-game chat history.
+            try { Client.displayChatMessage("" + msg); shown = true; } catch (e) { /* no chat (foreign thread) */ }
+            if (!shown) { try { System_.out.println("" + msg); } catch (e) { /* ignore */ } }
+            return shown;
         },
 
         _jar() { return this.agentJar ? ("" + this.agentJar) : Paths.get(rootFolder(), "scripts", "lib", "nf-inject-" + VERSION, "nf-inject-agent.jar").toString(); },
@@ -117,7 +132,7 @@ globalThis.__NF_IS_BUNDLE = true;
             if (this.ready()) return;                                   // -javaagent premain, or prior attach
             const jar = this._jar();
             if (!Files.exists(Paths.get(jar))) {
-                this.notify("§c[nf-inject] agent jar not found at §f" + jar + "§c — reinstall the library, or set Inject.agentJar.");
+                this.notify("§c[nf-inject] agent jar not found at §f" + jar + "§c — reinstall the library, or set Inject.agentJar.", "ERROR");
                 throw new Error("nf-inject: agent jar not found at " + jar + " (set Inject.agentJar)");
             }
             // JDK path: spawn the bundled external attacher (needs jdk.attach in java.home)
@@ -131,7 +146,7 @@ globalThis.__NF_IS_BUNDLE = true;
             if (!this.ready()) {
                 this.notify("§c[nf-inject] couldn't enable injection. Add the JVM arg " +
                     "§e-javaagent:" + jar + "§c (works on any JRE), or run on a JDK runtime such as " +
-                    "GraalVM (has jdk.attach). See logs/latest.log for details.");
+                    "GraalVM (has jdk.attach). See logs/latest.log for details.", "ERROR");
                 throw new Error("nf-inject: could not obtain Instrumentation. Launch with " +
                     "-javaagent:" + jar + " (works on any JRE), or use a JDK runtime (jdk.attach) " +
                     "so the attacher can attach. Attacher said: " + out.trim());
@@ -158,7 +173,7 @@ globalThis.__NF_IS_BUNDLE = true;
             } catch (e) {
                 H.hooks.remove(Integer_.valueOf(id));
                 this.notify("§c[nf-inject] inject failed for §f" + className + "." + method + "§c (" + position + "). " +
-                    "Check the class/method names match this Minecraft version. " + e);
+                    "Check the class/method names match this Minecraft version. " + e, "ERROR");
                 throw e;
             }
             const handle = "inj#" + id;
