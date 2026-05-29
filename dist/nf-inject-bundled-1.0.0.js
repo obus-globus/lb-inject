@@ -120,7 +120,7 @@ globalThis.__NF_IS_BUNDLE = true;
             try { Client.displayChatMessage("" + msg); } catch (e) { /* no chat (foreign thread) */ }
             // 3) native message box — guaranteed visible, even at the title screen.
             if (severity === "ERROR" || !this.quiet) this._dialog(plain, severity);
-            try { System_.out.println("[nf-inject] " + plain); } catch (e) { /* ignore */ }
+            try { System_.out.println(plain); } catch (e) { /* ignore */ }
             return true;
         },
 
