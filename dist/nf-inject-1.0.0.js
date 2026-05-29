@@ -1,3 +1,4 @@
+globalThis.__NF_TOAST_CLASS_B64 = "yv66vgAAAEEAjwgAAgEABElORk8IAAQBAAAIAAYBAAVFUlJPUgoACAAJBwAKDAALAAwBABBqYXZhL2xhbmcvU3RyaW5nAQAQZXF1YWxzSWdub3JlQ2FzZQEAFShMamF2YS9sYW5nL1N0cmluZzspWgcADgEAF2phdmF4L3N3aW5nL0pPcHRpb25QYW5lCgAQABEHABIMABMAFAEAFWphdmF4L3N3aW5nL1VJTWFuYWdlcgEAHWdldFN5c3RlbUxvb2tBbmRGZWVsQ2xhc3NOYW1lAQAUKClMamF2YS9sYW5nL1N0cmluZzsKABAAFgwAFwAYAQAOc2V0TG9va0FuZEZlZWwBABUoTGphdmEvbGFuZy9TdHJpbmc7KVYHABoBABNqYXZhL2xhbmcvVGhyb3dhYmxlCgAcAB0HAB4MAB8AIAEAB05mVG9hc3QBAAZlc2NhcGUBACYoTGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvU3RyaW5nOwgAIgEAAQoIACQBAAQ8YnI+CgAIACYMACcAKAEAB3JlcGxhY2UBAEQoTGphdmEvbGFuZy9DaGFyU2VxdWVuY2U7TGphdmEvbGFuZy9DaGFyU2VxdWVuY2U7KUxqYXZhL2xhbmcvU3RyaW5nOxIAAAAqDAArACABABdtYWtlQ29uY2F0V2l0aENvbnN0YW50cwcALQEAEmphdmF4L3N3aW5nL0pGcmFtZQoALAAvDAAwADEBAAY8aW5pdD4BAAMoKVYKACwAMwwANAA1AQAOc2V0QWx3YXlzT25Ub3ABAAQoWilWCgAsADcMADgANQEADnNldFVuZGVjb3JhdGVkCQA6ADsHADwMAD0APgEAFGphdmEvYXd0L1dpbmRvdyRUeXBlAQAHVVRJTElUWQEAFkxqYXZhL2F3dC9XaW5kb3ckVHlwZTsKACwAQAwAQQBCAQAHc2V0VHlwZQEAGShMamF2YS9hd3QvV2luZG93JFR5cGU7KVYKACwARAwARQBGAQALc2V0TG9jYXRpb24BAAUoSUkpVgoALABIDABJADUBAApzZXRWaXNpYmxlCABLAQAJbmYtaW5qZWN0CgANAE0MAE4ATwEAEXNob3dNZXNzYWdlRGlhbG9nAQA8KExqYXZhL2F3dC9Db21wb25lbnQ7TGphdmEvbGFuZy9PYmplY3Q7TGphdmEvbGFuZy9TdHJpbmc7SSlWCgAsAFEMAFIAMQEAB2Rpc3Bvc2UJAFQAVQcAVgwAVwBYAQAQamF2YS9sYW5nL1N5c3RlbQEAA291dAEAFUxqYXZhL2lvL1ByaW50U3RyZWFtOxIAAQAqCgBbAFwHAF0MAF4AGAEAE2phdmEvaW8vUHJpbnRTdHJlYW0BAAdwcmludGxuCgBUAGAMAGEAYgEABGV4aXQBAAQoSSlWCABkAQABJggAZgEABSZhbXA7CABoAQABPAgAagEABCZsdDsIAGwBAAE+CABuAQAEJmd0OwoAcAAvBwBxAQAQamF2YS9sYW5nL09iamVjdAEABG1haW4BABYoW0xqYXZhL2xhbmcvU3RyaW5nOylWAQAEQ29kZQEAD0xpbmVOdW1iZXJUYWJsZQEADVN0YWNrTWFwVGFibGUHAHgBABNbTGphdmEvbGFuZy9TdHJpbmc7AQAKU291cmNlRmlsZQEADE5mVG9hc3QuamF2YQEAEEJvb3RzdHJhcE1ldGhvZHMIAH0BAEY8aHRtbD48Ym9keSBzdHlsZT0nd2lkdGg6NDMwcHg7Zm9udC1mYW1pbHk6c2Fucy1zZXJpZic+ATwvYm9keT48L2h0bWw+CAB/AQAMbmYtaW5qZWN0OiABDwYAgQoAggCDBwCEDAArAIUBACRqYXZhL2xhbmcvaW52b2tlL1N0cmluZ0NvbmNhdEZhY3RvcnkBAJgoTGphdmEvbGFuZy9pbnZva2UvTWV0aG9kSGFuZGxlcyRMb29rdXA7TGphdmEvbGFuZy9TdHJpbmc7TGphdmEvbGFuZy9pbnZva2UvTWV0aG9kVHlwZTtMamF2YS9sYW5nL1N0cmluZztbTGphdmEvbGFuZy9PYmplY3Q7KUxqYXZhL2xhbmcvaW52b2tlL0NhbGxTaXRlOwEADElubmVyQ2xhc3NlcwcAiAEAD2phdmEvYXd0L1dpbmRvdwEABFR5cGUHAIsBACVqYXZhL2xhbmcvaW52b2tlL01ldGhvZEhhbmRsZXMkTG9va3VwBwCNAQAeamF2YS9sYW5nL2ludm9rZS9NZXRob2RIYW5kbGVzAQAGTG9va3VwADEAHABwAAAAAAADAAkAcgBzAAEAdAAAAYMABAAGAAAAqCq+ngAJKgMypwAFEgFMKr4EpAAJKgQypwAFEgNNEgUrtgAHmQAHA6cABAQ+uAAPuAAVpwAFOgQsuAAbEiESI7YAJboAKQAAOgS7ACxZtwAuOgUZBQS2ADIZBQS2ADYZBbIAObYAPxkFEfgwEfgwtgBDGQUEtgBHGQUZBBJKHbgATBkFtgBQpwAdTLIAUyq+BKQACSoEMqcABRIDugBZAAC2AFoDuABfsQACACwAMgA1ABkAAACGAIkAGQACAHUAAABSABQAAAAVAA4AFgAdABcAKgAYACwAGQA3ABsAOAAcAEkAHgBSAB8AWAAgAF4AIQBmACIAcQAjAHcAJQCBACYAhgApAIkAJwCKACgAowAqAKcAKwB2AAAAYQAMC0EHAAj8AAwHAAhBBwAI/AANBwAIQAH/AAkABAcAdwcACAcACAEAAQcAGQH/AFEAAQcAdwABBwAZ/wAPAAIHAHcHABkAAQcAW/8AAQACBwB3BwAZAAIHAFsHAAj6AAcACgAfACAAAQB0AAAALwADAAEAAAAXKhJjEmW2ACUSZxJptgAlEmsSbbYAJbAAAAABAHUAAAAGAAEAAAAuAAIAMAAxAAEAdAAAAB0AAQABAAAABSq3AG+xAAAAAQB1AAAABgABAAAAMQADAHkAAAACAHoAewAAAA4AAgCAAAEAfACAAAEAfgCGAAAAEgACADoAhwCJQBkAigCMAI4AGQ==";
 // lb-inject — runtime bytecode injection for LiquidBounce GraalJS scripts.
 //
 //   load("/abs/path/nf-inject.js");           // defines globalThis.Inject
@@ -81,23 +82,38 @@
             return true;
         },
 
-        // Show a native Swing message box. Called directly on the calling (game)
-        // thread — a plain host-method call, so no GraalJS foreign-thread issue.
-        // It's MODAL: the game blocks until the user clicks OK (intended — the user
-        // must acknowledge). Best-effort: skipped if AWT is unavailable (headless).
+        // Show a native Swing message box with an OK button. Preferred path: write
+        // the embedded NfToast helper to disk and launch it as a SEPARATE process,
+        // so it has its own AWT event thread and reliably appears (an in-process
+        // modal shown from Minecraft's render thread is flaky). Falls back to an
+        // in-process modal if the helper bytecode isn't embedded. Best-effort.
         _dialog(plain, severity) {
             try {
+                const b64 = globalThis.__NF_TOAST_CLASS_B64;
+                if (b64) {
+                    const dir = Paths.get(rootFolder(), "scripts", "lib", "nf-inject-" + VERSION);
+                    Files.createDirectories(dir);
+                    const cls = dir.resolve("NfToast.class");
+                    const bytes = Java.type("java.util.Base64").getDecoder().decode(b64);
+                    if (!Files.exists(cls) || Files.size(cls) !== bytes.length) Files.write(cls, bytes);
+                    const home = "" + System_.getProperty("java.home");
+                    const win = ("" + System_.getProperty("os.name")).toLowerCase().indexOf("win") >= 0;
+                    const bin = home + "/bin/" + (win ? "javaw" : "java");   // javaw avoids a console flash on Windows
+                    new ProcessBuilder(Java.to([bin, "-cp", "" + dir.toAbsolutePath(), "NfToast", severity, plain], "java.lang.String[]")).start();
+                    return;
+                }
+                // Fallback: in-process modal (may be unreliable from the render thread).
                 const JOptionPane = Java.type("javax.swing.JOptionPane");
                 const type = severity === "ERROR" ? JOptionPane.ERROR_MESSAGE : JOptionPane.INFORMATION_MESSAGE;
                 const html = "<html><body style='width:430px;font-family:sans-serif'>" +
-                    plain.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</body></html>";
+                    plain.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>") + "</body></html>";
                 const pane = new JOptionPane(html, type);
                 const dlg = pane.createDialog("nf-inject");
                 dlg.setModal(true);
-                dlg.setAlwaysOnTop(true);                       // surface above the (often fullscreen) game
-                dlg.setVisible(true);                           // blocks until the user acknowledges
+                dlg.setAlwaysOnTop(true);
+                dlg.setVisible(true);
                 dlg.dispose();
-            } catch (e) { /* AWT unavailable (headless) — toast + chat already fired */ }
+            } catch (e) { /* best-effort — toast + chat already fired */ }
         },
 
         _jar() { return this.agentJar ? ("" + this.agentJar) : Paths.get(rootFolder(), "scripts", "lib", "nf-inject-" + VERSION, "nf-inject-agent.jar").toString(); },

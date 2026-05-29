@@ -25,8 +25,19 @@ HOLDER_B64="$(base64 -w0 "$HOLDER")"
 OUT="dist/nf-inject-bundled-${VERSION}.js"
 PLAIN="dist/nf-inject-${VERSION}.js"
 
-# Versioned copy of the plain library (for users who ship the jars themselves).
-cp nf-inject.js "$PLAIN"
+# Compile the tiny NfToast message-box helper and embed its bytecode (base64) in
+# the generated JS — it is NOT shipped inside the jars. nf-inject.js writes it to
+# disk at runtime and launches it as a separate process (its own AWT event thread
+# -> the dialog reliably shows, unlike an in-process modal from the render thread).
+JAVAC="${JAVA_HOME:-/usr/lib/jvm/java-21-openjdk-amd64}/bin/javac"
+rm -rf build/toast && mkdir -p build/toast
+"$JAVAC" --release 21 -d build/toast src/NfToast.java
+TOAST_B64="$(base64 -w0 build/toast/NfToast.class)"
+TOAST_LINE="globalThis.__NF_TOAST_CLASS_B64 = \"${TOAST_B64}\";"
+
+# Versioned copy of the plain library (for users who ship the jars themselves),
+# with the embedded NfToast bytecode prepended.
+{ echo "$TOAST_LINE"; cat nf-inject.js; } > "$PLAIN"
 
 {
   cat <<'PROLOGUE'
@@ -52,6 +63,7 @@ globalThis.__NF_IS_BUNDLE = true;
     var Base64 = Java.type("java.util.Base64");
 PROLOGUE
 
+  printf '    %s\n' "$TOAST_LINE"
   printf '    var VERSION = "%s";\n' "$VERSION"
   printf '    var AGENT_B64 = "%s";\n' "$AGENT_B64"
   printf '    var HOLDER_B64 = "%s";\n' "$HOLDER_B64"

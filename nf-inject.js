@@ -81,23 +81,38 @@
             return true;
         },
 
-        // Show a native Swing message box. Called directly on the calling (game)
-        // thread — a plain host-method call, so no GraalJS foreign-thread issue.
-        // It's MODAL: the game blocks until the user clicks OK (intended — the user
-        // must acknowledge). Best-effort: skipped if AWT is unavailable (headless).
+        // Show a native Swing message box with an OK button. Preferred path: write
+        // the embedded NfToast helper to disk and launch it as a SEPARATE process,
+        // so it has its own AWT event thread and reliably appears (an in-process
+        // modal shown from Minecraft's render thread is flaky). Falls back to an
+        // in-process modal if the helper bytecode isn't embedded. Best-effort.
         _dialog(plain, severity) {
             try {
+                const b64 = globalThis.__NF_TOAST_CLASS_B64;
+                if (b64) {
+                    const dir = Paths.get(rootFolder(), "scripts", "lib", "nf-inject-" + VERSION);
+                    Files.createDirectories(dir);
+                    const cls = dir.resolve("NfToast.class");
+                    const bytes = Java.type("java.util.Base64").getDecoder().decode(b64);
+                    if (!Files.exists(cls) || Files.size(cls) !== bytes.length) Files.write(cls, bytes);
+                    const home = "" + System_.getProperty("java.home");
+                    const win = ("" + System_.getProperty("os.name")).toLowerCase().indexOf("win") >= 0;
+                    const bin = home + "/bin/" + (win ? "javaw" : "java");   // javaw avoids a console flash on Windows
+                    new ProcessBuilder(Java.to([bin, "-cp", "" + dir.toAbsolutePath(), "NfToast", severity, plain], "java.lang.String[]")).start();
+                    return;
+                }
+                // Fallback: in-process modal (may be unreliable from the render thread).
                 const JOptionPane = Java.type("javax.swing.JOptionPane");
                 const type = severity === "ERROR" ? JOptionPane.ERROR_MESSAGE : JOptionPane.INFORMATION_MESSAGE;
                 const html = "<html><body style='width:430px;font-family:sans-serif'>" +
-                    plain.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") + "</body></html>";
+                    plain.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, "<br>") + "</body></html>";
                 const pane = new JOptionPane(html, type);
                 const dlg = pane.createDialog("nf-inject");
                 dlg.setModal(true);
-                dlg.setAlwaysOnTop(true);                       // surface above the (often fullscreen) game
-                dlg.setVisible(true);                           // blocks until the user acknowledges
+                dlg.setAlwaysOnTop(true);
+                dlg.setVisible(true);
                 dlg.dispose();
-            } catch (e) { /* AWT unavailable (headless) — toast + chat already fired */ }
+            } catch (e) { /* best-effort — toast + chat already fired */ }
         },
 
         _jar() { return this.agentJar ? ("" + this.agentJar) : Paths.get(rootFolder(), "scripts", "lib", "nf-inject-" + VERSION, "nf-inject-agent.jar").toString(); },
