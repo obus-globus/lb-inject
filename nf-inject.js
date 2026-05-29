@@ -33,26 +33,31 @@
     const Files = Java.type("java.nio.file.Files");
     const RunnableAdapter = Java.extend(Java.type("java.lang.Runnable"));
 
+    const Integer_ = Java.type("java.lang.Integer");
+
     function rootFolder() {
         try { return "" + Client.configSystem.rootFolder.getAbsolutePath(); }
         catch (e) { return "" + System_.getProperty("user.dir"); }
     }
 
+    // NfHolder is bootstrap-loaded once the agent is active; before that, Java.type
+    // throws (class not found), which we treat as "not loaded yet".
+    function holder() { try { return Java.type("NfHolder"); } catch (e) { return null; } }
+
     const Inject = {
-        // Path to the precompiled generic agent jar. Defaults to
-        // <LiquidBounce>/scripts/nf-inject-agent.jar; override before first inject.
+        // Path to the precompiled generic agent jar (nf-holder.jar must sit next to
+        // it). Defaults to <LiquidBounce>/scripts/nf-inject-agent.jar.
         agentJar: null,
         _handles: {},
         _n: 0,
 
         _jar() { return this.agentJar ? ("" + this.agentJar) : Paths.get(rootFolder(), "scripts", "nf-inject-agent.jar").toString(); },
 
-        ready() { return System_.getProperties().get("nf.inject.injector") !== null; },
+        ready() { const H = holder(); return H !== null && H.injector !== null; },
 
-        // Ensure an Instrumentation + injector are available (idempotent).
+        // Ensure NfHolder.injector / .inst are available (idempotent).
         ensure() {
-            const props = System_.getProperties();
-            if (props.get("nf.inject.injector") !== null) return;       // already loaded (-javaagent or prior attach)
+            if (this.ready()) return;                                   // -javaagent premain, or prior attach
             const jar = this._jar();
             if (!Files.exists(Paths.get(jar))) throw new Error("nf-inject: agent jar not found at " + jar + " (set Inject.agentJar)");
             // JDK path: spawn the bundled external attacher (needs jdk.attach in java.home)
@@ -63,7 +68,7 @@
             const proc = pb.start();
             const out = "" + new JString(proc.getInputStream().readAllBytes());
             proc.waitFor();
-            if (props.get("nf.inject.injector") === null) {
+            if (!this.ready()) {
                 throw new Error("nf-inject: could not obtain Instrumentation. Launch with " +
                     "-javaagent:" + jar + " (works on any JRE), or use a JDK runtime (jdk.attach) " +
                     "so the attacher can attach. Attacher said: " + out.trim());
@@ -72,10 +77,10 @@
 
         inject(className, method, position, hook, invokeTarget) {
             this.ensure();
-            const props = System_.getProperties();
+            const H = holder();
             const id = ++this._n;
             const runnable = (typeof hook === "function") ? new RunnableAdapter({ run: hook }) : hook;
-            props.put("nf.hook." + id, runnable);
+            H.hooks.put(Integer_.valueOf(id), runnable);
             const internal = ("" + className).replace(/\./g, "/");
             let tOwner = null, tName = null;
             if (invokeTarget) {
@@ -84,8 +89,7 @@
                 tOwner = s.slice(0, dot).replace(/\./g, "/");
                 tName = s.slice(dot + 1);
             }
-            const tr = props.get("nf.inject.injector").apply(
-                Java.to([props.get("nf.inst"), internal, method, position, id, tOwner, tName], "java.lang.Object[]"));
+            const tr = H.injector.apply(Java.to([H.inst, internal, method, position, id, tOwner, tName], "java.lang.Object[]"));
             const handle = "inj#" + id;
             this._handles[handle] = { tr, id, internal };
             return handle;
@@ -94,9 +98,9 @@
         remove(handle) {
             const h = this._handles[handle];
             if (!h) return "no such handle: " + handle;
-            const props = System_.getProperties();
-            props.get("nf.inject.remover").apply(Java.to([props.get("nf.inst"), h.tr, h.internal], "java.lang.Object[]"));
-            props.remove("nf.hook." + h.id);
+            const H = holder();
+            H.remover.apply(Java.to([H.inst, h.tr, h.internal], "java.lang.Object[]"));
+            H.hooks.remove(Integer_.valueOf(h.id));
             delete this._handles[handle];
             return "removed " + handle;
         },

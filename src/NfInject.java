@@ -1,7 +1,6 @@
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
-import java.util.Properties;
 import java.util.function.Function;
 
 import org.objectweb.asm.ClassReader;
@@ -13,27 +12,20 @@ import org.objectweb.asm.Opcodes;
 /**
  * Generic, precompiled injection agent for LiquidBounce GraalJS scripts.
  *
- * Two ways it gets an {@link Instrumentation}, both routed through the same
- * static init:
- *   - launch-time:  java -javaagent:nf-inject-agent.jar   -> premain(..)
+ * Two ways it gets an {@link Instrumentation}, both routed through {@link #init}:
+ *   - launch-time:  java -javaagent:nf-inject-agent.jar      -> premain(..)
  *   - runtime:      VirtualMachine.attach(pid).loadAgent(jar) -> agentmain(..)
  *
- * On init it publishes, in System properties:
- *   "nf.inst"            the Instrumentation
- *   "nf.inject.injector" Function<Object[],Object>  apply([inst, classInternal,
- *                          method, position, hookId, targetOwner|null,
- *                          targetName|null]) -> the registered ClassFileTransformer
- *   "nf.inject.remover"  Function<Object[],Object>  apply([inst, transformer,
- *                          classInternal]) -> "removed"
- *   "nf.inject.ready"    "true"
+ * On init it publishes, on {@link NfHolder} (bootstrap-loaded via this jar's
+ * {@code Boot-Class-Path: nf-holder.jar}, so it's visible to the script AND to
+ * the Knot-loaded target, with no System-properties pollution):
+ *   NfHolder.inst      the Instrumentation
+ *   NfHolder.injector  Function apply([inst, classInternal, method, position,
+ *                        hookId, targetOwner|null, targetName|null]) -> transformer
+ *   NfHolder.remover   Function apply([inst, transformer, classInternal]) -> "removed"
  *
- * The script side puts its hook Runnable at  "nf.hook.<id>"  and the injected
- * bytecode is BOOTSTRAP-ONLY — it does
- *     ((Runnable) System.getProperties().get("nf.hook.<id>")).run()
- * so the target class (loaded by Fabric's Knot loader) needs to resolve nothing
- * but JDK classes. ASM is bundled into this jar, so the injector itself works no
- * matter which classloader loads the agent.
- *
+ * The script registers its hook Runnable in NfHolder.hooks[id]; the injected
+ * bytecode is just {@code INVOKESTATIC NfHolder.fire(id)}. ASM is bundled here.
  * Positions: HEAD, RETURN, BEFORE_INVOKE, AFTER_INVOKE, BEFORE_FIELD, AFTER_FIELD.
  */
 public final class NfInject {
@@ -42,22 +34,19 @@ public final class NfInject {
     public static void agentmain(String args, Instrumentation inst) { init(inst); }
 
     private static void init(Instrumentation inst) {
-        Properties p = System.getProperties();
-        p.put("nf.inst", inst);
-        p.put("nf.inject.injector", (Function<Object[], Object>) NfInject::inject);
-        p.put("nf.inject.remover", (Function<Object[], Object>) NfInject::remove);
-        p.put("nf.inject.ready", "true");
+        NfHolder.inst = inst;
+        NfHolder.injector = NfInject::inject;
+        NfHolder.remover = NfInject::remove;
     }
 
     private static Object inject(Object[] a) {
         final Instrumentation inst = (Instrumentation) a[0];
-        final String clazz = (String) a[1];          // internal name: net/minecraft/client/Minecraft
+        final String clazz = (String) a[1];          // internal: net/minecraft/client/Minecraft
         final String method = (String) a[2];
         final String pos = (String) a[3];
         final int id = ((Number) a[4]).intValue();
-        final String tOwner = (String) a[5];          // INVOKE/FIELD target owner (internal) or null
-        final String tName = (String) a[6];           // INVOKE/FIELD target member or null
-        final String key = "nf.hook." + id;
+        final String tOwner = (String) a[5];
+        final String tName = (String) a[6];
 
         ClassFileTransformer tr = new ClassFileTransformer() {
             @Override
@@ -71,13 +60,9 @@ public final class NfInject {
                         MethodVisitor mv = super.visitMethod(ac, n, d, s, e);
                         if (mv == null || !n.equals(method)) return mv;
                         return new MethodVisitor(Opcodes.ASM9, mv) {
-                            // ((Runnable) System.getProperties().get(key)).run()  — bootstrap-only
                             private void fire() {
-                                super.visitMethodInsn(Opcodes.INVOKESTATIC, "java/lang/System", "getProperties", "()Ljava/util/Properties;", false);
-                                super.visitLdcInsn(key);
-                                super.visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/util/Properties", "get", "(Ljava/lang/Object;)Ljava/lang/Object;", false);
-                                super.visitTypeInsn(Opcodes.CHECKCAST, "java/lang/Runnable");
-                                super.visitMethodInsn(Opcodes.INVOKEINTERFACE, "java/lang/Runnable", "run", "()V", true);
+                                super.visitLdcInsn(Integer.valueOf(id));
+                                super.visitMethodInsn(Opcodes.INVOKESTATIC, "NfHolder", "fire", "(I)V", false);
                             }
                             @Override public void visitCode() {
                                 super.visitCode();
