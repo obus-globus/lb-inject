@@ -136,3 +136,9 @@ provides.)
   `examples/` does both).
 - Modules only activate **in-game** — toggling a module that injects (like the
   example) does nothing at the main menu; join a world first.
+- The library posts in-game **chat notifications**: when it relocates a stray
+  copy into `scripts/lib/`, when injection can't be enabled (with the exact
+  `-javaagent:<jar>` arg to add, or "use a JDK like GraalVM"), and when an
+  `inject(...)` fails (e.g. a class/method name that doesn't match your MC
+  version). Set `Inject.quiet = true` to suppress the informational ones (error
+  notifications still show). `Inject.notify(msg)` is reusable from your script.

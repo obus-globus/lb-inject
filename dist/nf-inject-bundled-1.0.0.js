@@ -96,8 +96,17 @@ globalThis.__NF_IS_BUNDLE = true;
         // (where the bundle self-extracts it). For the plain library, put the two
         // jars there yourself, or set Inject.agentJar to wherever they live.
         agentJar: null,
+        // Set true to suppress the informational chat messages (errors still show).
+        quiet: false,
         _handles: {},
         _n: 0,
+
+        // Notify the user in the in-game chat (falls back to stdout, never throws).
+        notify(msg) {
+            try { Client.displayChatMessage("" + msg); return true; } catch (e) { /* no chat (foreign thread / menu) */ }
+            try { System_.out.println("" + msg); } catch (e) { /* ignore */ }
+            return false;
+        },
 
         _jar() { return this.agentJar ? ("" + this.agentJar) : Paths.get(rootFolder(), "scripts", "lib", "nf-inject-" + VERSION, "nf-inject-agent.jar").toString(); },
 
@@ -107,7 +116,10 @@ globalThis.__NF_IS_BUNDLE = true;
         ensure() {
             if (this.ready()) return;                                   // -javaagent premain, or prior attach
             const jar = this._jar();
-            if (!Files.exists(Paths.get(jar))) throw new Error("nf-inject: agent jar not found at " + jar + " (set Inject.agentJar)");
+            if (!Files.exists(Paths.get(jar))) {
+                this.notify("§c[nf-inject] agent jar not found at §f" + jar + "§c — reinstall the library, or set Inject.agentJar.");
+                throw new Error("nf-inject: agent jar not found at " + jar + " (set Inject.agentJar)");
+            }
             // JDK path: spawn the bundled external attacher (needs jdk.attach in java.home)
             const javaBin = "" + System_.getProperty("java.home") + "/bin/java";
             const pid = "" + ProcessHandle.current().pid();
@@ -117,6 +129,9 @@ globalThis.__NF_IS_BUNDLE = true;
             const out = "" + new JString(proc.getInputStream().readAllBytes());
             proc.waitFor();
             if (!this.ready()) {
+                this.notify("§c[nf-inject] couldn't enable injection. Add the JVM arg " +
+                    "§e-javaagent:" + jar + "§c (works on any JRE), or run on a JDK runtime such as " +
+                    "GraalVM (has jdk.attach). See logs/latest.log for details.");
                 throw new Error("nf-inject: could not obtain Instrumentation. Launch with " +
                     "-javaagent:" + jar + " (works on any JRE), or use a JDK runtime (jdk.attach) " +
                     "so the attacher can attach. Attacher said: " + out.trim());
@@ -137,7 +152,15 @@ globalThis.__NF_IS_BUNDLE = true;
                 tOwner = s.slice(0, dot).replace(/\./g, "/");
                 tName = s.slice(dot + 1);
             }
-            const tr = H.injector.apply(Java.to([H.inst, internal, method, position, id, tOwner, tName], "java.lang.Object[]"));
+            let tr;
+            try {
+                tr = H.injector.apply(Java.to([H.inst, internal, method, position, id, tOwner, tName], "java.lang.Object[]"));
+            } catch (e) {
+                H.hooks.remove(Integer_.valueOf(id));
+                this.notify("§c[nf-inject] inject failed for §f" + className + "." + method + "§c (" + position + "). " +
+                    "Check the class/method names match this Minecraft version. " + e);
+                throw e;
+            }
             const handle = "inj#" + id;
             this._handles[handle] = { tr, id, internal };
             return handle;
@@ -189,8 +212,12 @@ globalThis.__NF_IS_BUNDLE = true;
             const libDir = Paths.get(root, "scripts", "lib");
             Files.createDirectories(libDir);
             const dst = libDir.resolve(selfName);
-            try { Files.move(src, dst, SCO.REPLACE_EXISTING); }
-            catch (e) { try { Files.copy(src, dst, SCO.REPLACE_EXISTING); Files.deleteIfExists(src); } catch (e2) { /* best-effort */ } }
+            let moved = false;
+            try { Files.move(src, dst, SCO.REPLACE_EXISTING); moved = true; }
+            catch (e) { try { Files.copy(src, dst, SCO.REPLACE_EXISTING); Files.deleteIfExists(src); moved = true; } catch (e2) { /* best-effort */ } }
+            if (moved && globalThis.Inject && !globalThis.Inject.quiet) {
+                globalThis.Inject.notify("§e[nf-inject] moved §f" + selfName + "§e into scripts/lib/ (keeps your scripts folder tidy).");
+            }
         }
     } catch (e) { /* best-effort; never break the host */ }
 })();
