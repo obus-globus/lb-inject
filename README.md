@@ -20,9 +20,11 @@ Inject.remove(h);   Inject.list();   Inject.removeAll();
 | file | what |
 |---|---|
 | `nf-inject.js` | the script library (`Inject` API). Load/inline it in your script. |
-| `dist/nf-inject-agent.jar` | generic precompiled agent (premain + agentmain + a parameterized ASM injector + the attacher), **ASM bundled in**. Ship it next to your script. Build with `./build.sh`. |
-| `src/NfInject.java`, `src/NfAttacher.java` | sources for the jar. |
-| `build.sh` | compiles + bundles ASM → `dist/nf-inject-agent.jar` (JDK 21). |
+| `dist/nf-inject-agent.jar` | generic precompiled agent (premain + agentmain + a parameterized ASM injector + the attacher). Ship it in your `scripts/` folder. ASM is **not** bundled — Fabric already provides it (bundling triggers Fabric's "duplicate ASM classes" check). |
+| `dist/nf-holder.jar` | bootstrap state holder, loaded via the agent jar's `Boot-Class-Path`. **Must sit next to `nf-inject-agent.jar`** at runtime. |
+| `examples/inject-example.js` | a worked, self-contained userscript: registers a module that injects HEAD/RETURN/INVOKE hooks on enable and removes them on disable. |
+| `src/NfInject.java`, `src/NfHolder.java`, `src/NfAttacher.java` | sources for the jars. |
+| `build.sh` | compiles → `dist/nf-inject-agent.jar` + `dist/nf-holder.jar` (JDK 21). |
 
 ## Positions
 
