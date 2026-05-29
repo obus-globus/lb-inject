@@ -23,13 +23,23 @@ disabled:
    ./build.sh          # -> dist/nf-inject-agent.jar + dist/nf-holder.jar
    ```
 
-2. Copy these into your LiquidBounce `scripts/` folder:
+2. Copy the deliverables into your LiquidBounce `scripts/` folder. The example
+   auto-detects whichever library file is present (plain preferred), so pick one:
 
+   **Plain library** (three files):
    ```
    scripts/
      nf-inject.js            # the library  (from repo root)
      nf-inject-agent.jar     # from dist/
      nf-holder.jar           # from dist/   (MUST sit next to the agent jar)
+     inject-example.js       # this example
+   ```
+
+   **Single-file bundle** (jars embedded; runtime-attach path only — see the
+   top-level README):
+   ```
+   scripts/
+     nf-inject-bundled.js    # from dist/ (self-extracts the jars)
      inject-example.js       # this example
    ```
 

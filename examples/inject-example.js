@@ -17,10 +17,21 @@
 // If neither is available, Inject.inject(...) throws with guidance and the error
 // is logged to the Minecraft log (latest.log) as a failed script load.
 
-// Load the library — defines globalThis.Inject. Adjust the path if your scripts
-// folder differs; Client.configSystem.rootFolder is the LiquidBounce root.
+// Load the library — defines globalThis.Inject. Works with EITHER deliverable:
+//   - nf-inject.js          (plain lib; ship nf-inject-agent.jar + nf-holder.jar too), or
+//   - nf-inject-bundled.js  (single-file build with both jars embedded).
+// Whichever you dropped in scripts/ is auto-detected (plain lib preferred).
 const _root = "" + Client.configSystem.rootFolder.getAbsolutePath();
-load(_root + "/scripts/nf-inject.js");
+(function () {
+    const Files = Java.type("java.nio.file.Files");
+    const Paths = Java.type("java.nio.file.Paths");
+    const candidates = ["nf-inject.js", "nf-inject-bundled.js"];
+    for (const name of candidates) {
+        const p = Paths.get(_root, "scripts", name);
+        if (Files.exists(p)) { load(p.toString()); return; }
+    }
+    throw new Error("InjectDemo: no nf-inject library found in scripts/ (expected one of: " + candidates.join(", ") + ")");
+})();
 
 const script = registerScript({ name: "InjectDemo", version: "1.0.0", authors: ["Obus"] });
 
