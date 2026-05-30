@@ -5,9 +5,9 @@ for the full API reference and how instrumentation is obtained.
 
 Two flavours:
 
-- `inject-example.js` — hooks live inside a **module**; injected on enable,
+- `inject-example.js` - hooks live inside a **module**; injected on enable,
   removed on disable (toggle it like any LiquidBounce module).
-- `inject-always-on.js` — **no module**; hooks are installed at script load and
+- `inject-always-on.js` - **no module**; hooks are installed at script load and
   stay active for the whole session.
 
 Both load the library via an `ensureLib("1.0.0")` preamble (finds the versioned
@@ -21,9 +21,9 @@ that, while enabled, patches three points of `net.minecraft.client.Minecraft`
 with mixin-style hooks, and removes them (restoring the original bytecode) when
 disabled:
 
-- `getFps` at `HEAD` — counts every call (render thread, so a JS hook is safe).
-- `tick` at `RETURN` — periodic chat message.
-- `tick` at `BEFORE_INVOKE` of `getFps` — fires right before that call site
+- `getFps` at `HEAD` - counts every call (render thread, so a JS hook is safe).
+- `tick` at `RETURN` - periodic chat message.
+- `tick` at `BEFORE_INVOKE` of `getFps` - fires right before that call site
   (the 5th `inject` arg is the target `"owner.member"`).
 
 ### Run it
@@ -40,7 +40,7 @@ disabled:
    `scripts/lib/` on first load). Pick one library flavour:
 
    **Single-file bundle** (recommended; jars embedded, self-extracts; runtime-
-   attach path only — see the top-level README):
+   attach path only - see the top-level README):
    ```
    scripts/
      inject-example.js                 # this example
@@ -59,14 +59,14 @@ disabled:
          nf-holder.jar                 # from dist/ (MUST sit next to the agent jar)
    ```
 
-   You can also just drop the library file in `scripts/` (not `lib/`) — it moves
+   You can also just drop the library file in `scripts/` (not `lib/`) - it moves
    itself into `scripts/lib/` on first load. (LB logs a harmless one-line
-   `WARN: Unable to find main inside the directory lib.` — see the top-level
+   `WARN: Unable to find main inside the directory lib.` - see the top-level
    README to silence it.)
 
 3. Make sure instrumentation is available (the library auto-detects which):
    - launch LiquidBounce with `-javaagent:nf-inject-agent.jar` (works on **any
-     JRE** — add it via the launcher's custom JVM args), **or**
+     JRE** - add it via the launcher's custom JVM args), **or**
    - run on a **JDK** runtime (has `jdk.attach`, e.g. GraalVM in LiquidLauncher)
      so the library can self-attach at runtime.
 
@@ -75,12 +75,12 @@ disabled:
 
 4. Start the client, open the ClickGUI, and toggle the **InjectDemo** module.
    You'll see a chat line listing the injected hooks on enable, and a removal
-   line on disable. (Modules only activate **in-game** — join a world first.)
+   line on disable. (Modules only activate **in-game** - join a world first.)
 
 ### Adapt it
 
 Change the class/method/position to hook whatever you need. Targets are
-**Mojang-mapped** and version-specific (currently MC `26.1.2`) — use the names
+**Mojang-mapped** and version-specific (currently MC `26.1.2`) - use the names
 for the version you run against (see the mappings link in the top-level README).
 Positions: `HEAD`, `RETURN`, `BEFORE_INVOKE`, `AFTER_INVOKE`, `BEFORE_FIELD`,
 `AFTER_FIELD`.

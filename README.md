@@ -9,7 +9,7 @@ the agent) lives in one precompiled, generic jar that's shipped with the
 library; the script side is plain JS.
 
 ```js
-// In your userscript — see examples/ for the ensureLib(...) loader preamble.
+// In your userscript - see examples/ for the ensureLib(...) loader preamble.
 load(ensureLib("1.0.0"));                              // defines globalThis.Inject
 var h = Inject.inject("net.minecraft.client.Minecraft", "getFps", "HEAD",
           function () { Client.displayChatMessage("getFps!"); });
@@ -21,23 +21,23 @@ Inject.remove(h);   Inject.list();   Inject.removeAll();
 Grab the prebuilt files from the [**Releases**](https://github.com/obus-globus/lb-inject/releases)
 page (latest: [v1.0.0](https://github.com/obus-globus/lb-inject/releases/latest)):
 
-- **`nf-inject-bundled-<ver>.js`** — recommended; single file with both jars
+- **`nf-inject-bundled-<ver>.js`** - recommended; single file with both jars
   embedded, self-extracts on load. Drop it in your LiquidBounce `scripts/` (it
   relocates itself into `scripts/lib/`).
-- **`nf-inject-<ver>.js`** + **`nf-inject-agent.jar`** + **`nf-holder.jar`** — the
+- **`nf-inject-<ver>.js`** + **`nf-inject-agent.jar`** + **`nf-holder.jar`** - the
   plain library and its jars, for the `-javaagent` route (the holder jar must sit
   next to the agent jar).
 
-Or build from source with `./build.sh` (+ `./make-bundle.sh`) — see [Build](#build).
+Or build from source with `./build.sh` (+ `./make-bundle.sh`) - see [Build](#build).
 
 ## Files
 
 | file | what |
 |---|---|
 | `nf-inject.js` | the script library source (`Inject` API). `build`/`make-bundle.sh` emit versioned copies into `dist/`. |
-| `dist/nf-inject-<ver>.js` | versioned plain library — deploy this (the version is in the name so multiple versions can coexist). |
+| `dist/nf-inject-<ver>.js` | versioned plain library - deploy this (the version is in the name so multiple versions can coexist). |
 | `dist/nf-inject-bundled-<ver>.js` | versioned single-file build with both jars embedded (self-extracts on load). |
-| `dist/nf-inject-agent.jar` | generic precompiled agent (premain + agentmain + a parameterized ASM injector + the attacher). ASM is **not** bundled — Fabric already provides it (bundling triggers Fabric's "duplicate ASM classes" check). |
+| `dist/nf-inject-agent.jar` | generic precompiled agent (premain + agentmain + a parameterized ASM injector + the attacher). ASM is **not** bundled - Fabric already provides it (bundling triggers Fabric's "duplicate ASM classes" check). |
 | `dist/nf-holder.jar` | bootstrap state holder, loaded via the agent jar's `Boot-Class-Path`. **Must sit next to `nf-inject-agent.jar`** at runtime. |
 | `examples/` | worked userscripts (module-toggle + always-on) and their README. |
 | `src/NfInject.java`, `src/NfHolder.java`, `src/NfAttacher.java` | sources for the jars. |
@@ -57,21 +57,21 @@ one. Your script pins the version it wants via `ensureLib("1.0.0")` (see
 If you drop a library file directly in `scripts/` instead, it still works: on
 first load it **relocates itself into `scripts/lib/`**. The bundle's jars
 self-extract into `scripts/lib/nf-inject-<ver>/` (holder kept next to the agent
-so the manifest's relative `Boot-Class-Path` resolves) — not a random temp dir.
+so the manifest's relative `Boot-Class-Path` resolves) - not a random temp dir.
 
 > LiquidBounce logs a one-line `WARN: Unable to find main inside the directory
 > lib.` each launch, because it scans every subfolder for a `main.*`. It's
 > harmless. To silence it you may drop a no-op `main.js` (calling
-> `registerScript(...)`) into `scripts/lib/` yourself — we don't ship one.
+> `registerScript(...)`) into `scripts/lib/` yourself - we don't ship one.
 
 ## Positions
 
 `HEAD`, `RETURN`, `BEFORE_INVOKE`, `AFTER_INVOKE`, `BEFORE_FIELD`, `AFTER_FIELD`
 (map to Mixin `@At` `HEAD`/`RETURN`/`INVOKE`/`FIELD`). The `*_INVOKE`/`*_FIELD`
-positions take a 5th arg — the target `"owner.member"`, e.g.
+positions take a 5th arg - the target `"owner.member"`, e.g.
 `Inject.inject(cls, "tick", "BEFORE_INVOKE", hook, "net.minecraft.client.Minecraft.getFps")`.
 
-Not supported (need a richer hook ABI than a no-arg `Runnable` — args / return /
+Not supported (need a richer hook ABI than a no-arg `Runnable` - args / return /
 cancel): Mixin `@Redirect`, `@Overwrite`, `@ModifyArg(s)`, `@ModifyVariable`,
 `@ModifyConstant`, `@ModifyReturnValue`, cancellable `@Inject`, and `TAIL`.
 
@@ -88,7 +88,7 @@ Bytecode injection needs a `java.lang.instrument.Instrumentation`. `Inject.ensur
 (called automatically on first `inject`) picks the right method:
 
 1. **`-javaagent:nf-inject-agent.jar`** at launch → the agent's `premain` already
-   published everything. **Works on any JRE — no JDK, no attach.** Add it via the
+   published everything. **Works on any JRE - no JDK, no attach.** Add it via the
    launcher's custom JVM args.
 2. **A JDK runtime** (the `java.home` has the `jdk.attach` module, e.g. **GraalVM**
    in LiquidLauncher) → the library spawns the bundled attacher to attach + load
@@ -99,7 +99,7 @@ Bytecode injection needs a `java.lang.instrument.Instrumentation`. `Inject.ensur
 > `jdk.compiler`), so on those the **`-javaagent` route is required**; **GraalVM**
 > (a JDK) supports the runtime-attach route directly.
 
-The injected bytecode calls into the bootstrap-loaded `NfHolder.fire(<id>)` — so
+The injected bytecode calls into the bootstrap-loaded `NfHolder.fire(<id>)` - so
 the patched class (loaded by Fabric's Knot loader) resolves nothing but a
 bootstrap class. ASM is not bundled (Fabric provides it); the agent only
 compiles against it.
@@ -111,14 +111,14 @@ compiles against it.
 ./make-bundle.sh      # -> dist/nf-inject-bundled-<ver>.js + dist/nf-inject-<ver>.js (run after build.sh)
 ```
 
-The jars are generic — build once and reuse for any script/injection. The
+The jars are generic - build once and reuse for any script/injection. The
 version comes from the `VERSION` constant in `nf-inject.js`; `make-bundle.sh`
 stamps it into the output filenames.
 
 ## Single-file bundle
 
 `make-bundle.sh` produces `dist/nf-inject-bundled-<ver>.js`: both jars embedded
-as base64. You ship **one** file — drop it in `scripts/` (it relocates itself
+as base64. You ship **one** file - drop it in `scripts/` (it relocates itself
 into `scripts/lib/`) and `load()` it from your script (use `ensureLib(...)`,
 see `examples/`). On load it self-extracts the jars into
 `scripts/lib/nf-inject-<ver>/` (holder next to the agent so the manifest's
@@ -127,7 +127,7 @@ relative `Boot-Class-Path` resolves) and points `Inject.agentJar` there.
 This only helps the **runtime-attach path** (JDK runtime, e.g. GraalVM): the
 attach API loads the agent from a filesystem path at the moment you inject, so
 self-extracting just-in-time works. The **`-javaagent` path can't use the
-bundle** — that flag is read by the JVM at launch (before any script runs) and
+bundle** - that flag is read by the JVM at launch (before any script runs) and
 needs the jar on disk then, so those users still ship `nf-inject-agent.jar` +
 `nf-holder.jar`. (There's no in-memory route: `loadAgent` takes a file, and
 defining classes in memory would itself require the `Instrumentation` the jar
@@ -137,21 +137,21 @@ provides.)
 
 - Precompiled bytecode of the agent is version-agnostic, but the **classes you
   target** (MC/LB) are Mojang-mapped and version-specific (currently MC `26.1.2`)
-  — use the correct names for the version you run against.
+  - use the correct names for the version you run against.
 - `remove`/`removeAll` restore the original bytecode (`removeTransformer` +
   retransform), then drop the hook.
 - Keeping the library in `scripts/lib/` means LiquidBounce never auto-loads it
   (it only auto-loads `main.*` inside a subfolder). A **stray** copy left in
-  `scripts/` root *is* auto-loaded — to avoid a "missing required information"
+  `scripts/` root *is* auto-loaded - to avoid a "missing required information"
   error it registers benign info (a harmless empty `nf-inject (library)` script)
   and then relocates itself into `scripts/lib/` for next launch.
 - In your own script, set `globalThis.__nfLibConsumed = true` and `load()` the
   library **before** your `registerScript(...)` (the `ensureLib(...)` preamble in
   `examples/` does both).
-- Modules only activate **in-game** — toggling a module that injects (like the
+- Modules only activate **in-game** - toggling a module that injects (like the
   example) does nothing at the main menu; join a world first.
 - The library surfaces events three ways: a chat message, a LiquidBounce toast,
-  and — because neither is visible at the title screen — a **modal Swing message
+  and - because neither is visible at the title screen - a **modal Swing message
   box** the user must click OK on (it briefly freezes the game thread; that's
   intentional, so a startup/error message can't be missed). It fires when the
   library relocates a stray copy into `scripts/lib/`, when injection can't be
