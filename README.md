@@ -35,6 +35,7 @@ Or build from source with `./build.sh` (+ `./make-bundle.sh`) - see [Build](#bui
 | file | what |
 |---|---|
 | `nf-inject.js` | the script library source (`Inject` API). `build`/`make-bundle.sh` emit versioned copies into `dist/`. |
+| `nf-inject.d.ts` | TypeScript types for the `Inject` global. `make-bundle.sh` emits a versioned `dist/nf-inject-<ver>.d.ts`. See [TypeScript](#typescript). |
 | `dist/nf-inject-<ver>.js` | versioned plain library - deploy this (the version is in the name so multiple versions can coexist). |
 | `dist/nf-inject-bundled-<ver>.js` | versioned single-file build with both jars embedded (self-extracts on load). |
 | `dist/nf-inject-agent.jar` | generic precompiled agent (premain + agentmain + a parameterized ASM injector + the attacher). ASM is **not** bundled - Fabric already provides it (bundling triggers Fabric's "duplicate ASM classes" check). |
@@ -115,6 +116,28 @@ Inject.always("heartbeat", [
 > that only runs **once at startup before your script loads** isn't caught (a real
 > mixin would). For anything called repeatedly there's no difference. And the hook
 > ABI is a no-arg `Runnable` — HEAD/RETURN/INVOKE/FIELD, not `@ModifyArg`/`@Redirect`.
+
+## TypeScript
+
+`dist/nf-inject-<ver>.d.ts` (source: [`nf-inject.d.ts`](nf-inject.d.ts)) types the
+`Inject` global. Drop it into your project and you get autocomplete, docs, and the
+call-contract checks (closed `position` union; `target` required for
+`*_INVOKE`/`*_FIELD`; branded handles; typed `module`/`always` decls):
+
+```jsonc
+// tsconfig.json — include the ambient types (it declares the global `Inject`)
+{ "include": ["src/**/*", "path/to/nf-inject-<ver>.d.ts"] }
+```
+
+```ts
+// no import — `Inject` is an ambient global, typed by the .d.ts
+const h = Inject.inject("net.minecraft.client.Minecraft", "getFps", "HEAD", () => {});
+```
+
+> Using a bundler with an import convention instead (e.g.
+> [`lb-inject-template`](https://github.com/obus-globus/lb-inject-template))? That
+> project declares `"lb-inject"` as a *module* so you `import { Inject } from
+> "lb-inject"`; the type contents are the same.
 
 ## How `Instrumentation` is obtained (auto-detected)
 
