@@ -139,6 +139,12 @@ const h = Inject.inject("net.minecraft.client.Minecraft", "getFps", "HEAD", () =
 > project declares `"lb-inject"` as a *module* so you `import { Inject } from
 > "lb-inject"`; the type contents are the same.
 
+The library source itself is `// @ts-check`-ed against this `.d.ts` (`npm run
+typecheck`): the `globalThis.Inject = Inject` assignment makes a missing or wrong
+public member a type error, so the implementation and the shipped types can't
+drift. (`nf-inject.js` stays the runnable/shippable source — no TS build step;
+`graaljs-env.d.ts` provides loose stubs for the GraalJS/LB host globals.)
+
 ## How `Instrumentation` is obtained (auto-detected)
 
 Bytecode injection needs a `java.lang.instrument.Instrumentation`. `Inject.ensure()`

@@ -69,14 +69,14 @@ interface InjectApi {
   quiet: boolean;
 
   /** Override the path to `nf-inject-agent.jar` (normally auto-resolved). */
-  agentJar?: string;
+  agentJar?: string | null;
 
   /**
    * Path to a JDK home (a folder containing `bin/java`) used to run the external
    * attacher — set it to inject even when LiquidBounce runs on a **JRE** (the
    * attacher supplies `jdk.attach`; the target VM doesn't need it).
    */
-  jdkHome?: string;
+  jdkHome?: string | null;
 
   /** Obtain `Instrumentation` (auto-called on first `inject`); throws with guidance if unavailable. */
   ensure(): void;
@@ -119,4 +119,4 @@ interface InjectApi {
 }
 
 /** The lb-inject API — a global defined when the library is `load()`-ed. */
-declare const Inject: InjectApi;
+declare var Inject: InjectApi;

@@ -1,4 +1,11 @@
+// @ts-check
 // lb-inject — runtime bytecode injection for LiquidBounce GraalJS scripts.
+//
+// Type-checked (`// @ts-check`) against nf-inject.d.ts (the public `InjectApi`)
+// and graaljs-env.d.ts (loose host-interop stubs). The `globalThis.Inject =
+// Inject` assignment below is what enforces the implementation matches the
+// shipped `.d.ts` — a missing/wrong public member is a compile error, so the
+// types can't drift. Run `npm run typecheck`.
 //
 //   load("/abs/path/nf-inject.js");           // defines globalThis.Inject
 //   var h = Inject.inject("net.minecraft.client.Minecraft", "getFps", "HEAD",
@@ -49,11 +56,20 @@
     // Normalize one declaration (used by module()/always()) into inject() args.
     // Accepts a tuple  [className, method, position, hook, target?]  or a
     // mixin-style object  { class|className, method, at|position, hook|run, target? }.
+    /**
+     * @param {InjectDecl | any} d
+     * @returns {any[]} inject() args: [className, method, position, hook, target?]
+     */
     function declToArgs(d) {
         if (Array.isArray(d)) return d;
         return [d["class"] || d.className, d.method, d.at || d.position, d.hook || d.run, d.target];
     }
 
+    // The public API, defined on globalThis.Inject. Conformance to the shipped
+    // public type (nf-inject.d.ts `InjectApi`) is enforced by the `_apiConformance`
+    // guard just before `globalThis.Inject = Inject` below — a missing or wrong
+    // public member is a compile error there. The object keeps its own (richer,
+    // with privates) inferred type here for internal use.
     const Inject = {
         VERSION,
         // Path to the precompiled generic agent jar (nf-holder.jar must sit next to
@@ -69,6 +85,7 @@
         jdkHome: null,
         // Set true to suppress the informational chat messages (errors still show).
         quiet: false,
+        /** @type {Record<string, { tr: any, id: number, internal: string }>} */
         _handles: {},
         _n: 0,
 
@@ -77,6 +94,7 @@
         // visible at the title screen — also a modal Swing message box the user
         // must click OK on (it blocks the game thread). The message box shows for
         // ERROR always, and for info/success unless Inject.quiet. Never throws.
+        /** @param {string} msg @param {InjectSeverity} [severity] @returns {boolean} */
         notify(msg, severity) {
             severity = severity || "INFO";
             const plain = ("" + msg).replace(/§./g, "");       // strip §color codes
@@ -100,6 +118,7 @@
         // so it has its own AWT event thread and reliably appears (an in-process
         // modal shown from Minecraft's render thread is flaky). Falls back to an
         // in-process modal if the helper bytecode isn't embedded. Best-effort.
+        /** @param {string} plain @param {string} severity */
         _dialog(plain, severity) {
             try {
                 const b64 = globalThis.__NF_TOAST_CLASS_B64;
@@ -190,6 +209,14 @@
             }
         },
 
+        /**
+         * @param {string} className
+         * @param {string} method
+         * @param {InjectPosition} position
+         * @param {InjectHook} hook
+         * @param {string} [invokeTarget]
+         * @returns {InjectHandle}
+         */
         inject(className, method, position, hook, invokeTarget) {
             this.ensure();
             const H = holder();
@@ -215,9 +242,10 @@
             }
             const handle = "inj#" + id;
             this._handles[handle] = { tr, id, internal };
-            return handle;
+            return /** @type {InjectHandle} */ (handle);
         },
 
+        /** @param {InjectHandle} handle @returns {string} */
         remove(handle) {
             const h = this._handles[handle];
             if (!h) return "no such handle: " + handle;
@@ -227,7 +255,8 @@
             delete this._handles[handle];
             return "removed " + handle;
         },
-        removeAll() { const ks = Object.keys(this._handles); ks.forEach((k) => this.remove(k)); return "removed " + ks.length; },
+        /** @returns {string} */
+        removeAll() { const ks = Object.keys(this._handles); ks.forEach((k) => this.remove(/** @type {InjectHandle} */ (k))); return "removed " + ks.length; },
         list() { return Object.keys(this._handles); },
 
         // Declarative, module-bound injection (mixin style). Declare the hooks
@@ -239,9 +268,17 @@
         //     ["net.minecraft.client.Minecraft", "tick", "RETURN", fn],
         //     { class: "net.minecraft.client.Minecraft", method: "getFps", at: "HEAD", hook: fn },
         //   ]);
+        /**
+         * @template {InjectModuleLike} M
+         * @param {M} mod
+         * @param {InjectDecl[]} decls
+         * @returns {M}
+         */
         module(mod, decls) {
+            /** @type {InjectHandle[]} */
             let handles = [];
-            mod.on("enable", () => { handles = decls.map((d) => this.inject.apply(this, declToArgs(d))); });
+            const inject = /** @type {(...a: any[]) => InjectHandle} */ (this.inject.bind(this));
+            mod.on("enable", () => { handles = decls.map((d) => inject(...declToArgs(d))); });
             mod.on("disable", () => { handles.forEach((h) => this.remove(h)); handles = []; });
             return mod;
         },
@@ -252,15 +289,20 @@
         // `.script reload` re-running the script doesn't stack duplicates. `decls`
         // is the same shape as module(). Returns the installed handles (or [] if
         // already installed this session).
+        /** @param {string} key @param {InjectDecl[]} decls @returns {InjectHandle[]} */
         always(key, decls) {
             const sentinel = "nf.always." + VERSION + "." + key;
             if (System_.getProperty(sentinel) !== null) return [];
-            const handles = decls.map((d) => this.inject.apply(this, declToArgs(d)));
+            const inject = /** @type {(...a: any[]) => InjectHandle} */ (this.inject.bind(this));
+            const handles = decls.map((d) => inject(...declToArgs(d)));
             System_.setProperty(sentinel, "true");
             return handles;
         },
     };
 
+    // This assignment is also the compile-time conformance check: `globalThis.Inject`
+    // is typed `InjectApi` (nf-inject.d.ts), so a missing or wrong public member on
+    // the object above is a type error here — the impl can't drift from the shipped .d.ts.
     globalThis.Inject = Inject;
 })();
 

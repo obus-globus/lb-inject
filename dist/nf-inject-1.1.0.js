@@ -1,5 +1,12 @@
 globalThis.__NF_TOAST_CLASS_B64 = "yv66vgAAAEEAhAgAAgEABElORk8IAAQBAAAIAAYBAAVFUlJPUgoACAAJBwAKDAALAAwBABBqYXZhL2xhbmcvU3RyaW5nAQAQZXF1YWxzSWdub3JlQ2FzZQEAFShMamF2YS9sYW5nL1N0cmluZzspWgcADgEAF2phdmF4L3N3aW5nL0pPcHRpb25QYW5lCgAQABEHABIMABMAFAEAFWphdmF4L3N3aW5nL1VJTWFuYWdlcgEAHWdldFN5c3RlbUxvb2tBbmRGZWVsQ2xhc3NOYW1lAQAUKClMamF2YS9sYW5nL1N0cmluZzsKABAAFgwAFwAYAQAOc2V0TG9va0FuZEZlZWwBABUoTGphdmEvbGFuZy9TdHJpbmc7KVYHABoBABNqYXZhL2xhbmcvVGhyb3dhYmxlCgAcAB0HAB4MAB8AIAEAB05mVG9hc3QBAAZlc2NhcGUBACYoTGphdmEvbGFuZy9TdHJpbmc7KUxqYXZhL2xhbmcvU3RyaW5nOwgAIgEAAQoIACQBAAQ8YnI+CgAIACYMACcAKAEAB3JlcGxhY2UBAEQoTGphdmEvbGFuZy9DaGFyU2VxdWVuY2U7TGphdmEvbGFuZy9DaGFyU2VxdWVuY2U7KUxqYXZhL2xhbmcvU3RyaW5nOxIAAAAqDAArACABABdtYWtlQ29uY2F0V2l0aENvbnN0YW50cwoADQAtDAAuAC8BAAY8aW5pdD4BABYoTGphdmEvbGFuZy9PYmplY3Q7SSlWCAAxAQAJbmYtaW5qZWN0CgANADMMADQANQEADGNyZWF0ZURpYWxvZwEAPShMamF2YS9hd3QvQ29tcG9uZW50O0xqYXZhL2xhbmcvU3RyaW5nOylMamF2YXgvc3dpbmcvSkRpYWxvZzsKADcAOAcAOQwAOgA7AQATamF2YXgvc3dpbmcvSkRpYWxvZwEADnNldEFsd2F5c09uVG9wAQAEKFopVgoANwA9DAA+AD8BABVzZXRMb2NhdGlvblJlbGF0aXZlVG8BABcoTGphdmEvYXd0L0NvbXBvbmVudDspVgoANwBBDABCADsBAAhzZXRNb2RhbAoANwBEDABFADsBAApzZXRWaXNpYmxlCgA3AEcMAEgASQEAB2Rpc3Bvc2UBAAMoKVYJAEsATAcATQwATgBPAQAQamF2YS9sYW5nL1N5c3RlbQEAA291dAEAFUxqYXZhL2lvL1ByaW50U3RyZWFtOxIAAQAqCgBSAFMHAFQMAFUAGAEAE2phdmEvaW8vUHJpbnRTdHJlYW0BAAdwcmludGxuCgBLAFcMAFgAWQEABGV4aXQBAAQoSSlWCABbAQABJggAXQEABSZhbXA7CABfAQABPAgAYQEABCZsdDsIAGMBAAE+CABlAQAEJmd0OwoAZwBoBwBpDAAuAEkBABBqYXZhL2xhbmcvT2JqZWN0AQAEbWFpbgEAFihbTGphdmEvbGFuZy9TdHJpbmc7KVYBAARDb2RlAQAPTGluZU51bWJlclRhYmxlAQANU3RhY2tNYXBUYWJsZQcAcAEAE1tMamF2YS9sYW5nL1N0cmluZzsBAApTb3VyY2VGaWxlAQAMTmZUb2FzdC5qYXZhAQAQQm9vdHN0cmFwTWV0aG9kcwgAdQEARjxodG1sPjxib2R5IHN0eWxlPSd3aWR0aDo0MzBweDtmb250LWZhbWlseTpzYW5zLXNlcmlmJz4BPC9ib2R5PjwvaHRtbD4IAHcBAAxuZi1pbmplY3Q6IAEPBgB5CgB6AHsHAHwMACsAfQEAJGphdmEvbGFuZy9pbnZva2UvU3RyaW5nQ29uY2F0RmFjdG9yeQEAmChMamF2YS9sYW5nL2ludm9rZS9NZXRob2RIYW5kbGVzJExvb2t1cDtMamF2YS9sYW5nL1N0cmluZztMamF2YS9sYW5nL2ludm9rZS9NZXRob2RUeXBlO0xqYXZhL2xhbmcvU3RyaW5nO1tMamF2YS9sYW5nL09iamVjdDspTGphdmEvbGFuZy9pbnZva2UvQ2FsbFNpdGU7AQAMSW5uZXJDbGFzc2VzBwCAAQAlamF2YS9sYW5nL2ludm9rZS9NZXRob2RIYW5kbGVzJExvb2t1cAcAggEAHmphdmEvbGFuZy9pbnZva2UvTWV0aG9kSGFuZGxlcwEABkxvb2t1cAAxABwAZwAAAAAAAwAJAGoAawABAGwAAAF1AAQABwAAAJ4qvp4ACSoDMqcABRIBTCq+BKQACSoEMqcABRIDTRIFK7YAB5kABwOnAAQEPrgAD7gAFacABToELLgAGxIhEiO2ACW6ACkAADoEuwANWRkEHbcALDoFGQUBEjC2ADI6BhkGBLYANhkGAbYAPBkGBLYAQBkGBLYAQxkGtgBGpwAdTLIASiq+BKQACSoEMqcABRIDugBQAAC2AFEDuABWsQACACwAMgA1ABkAAAB8AH8AGQACAG0AAABOABMAAAAUAA4AFQAdABYAKgAXACwAGAA3ABoAOAAbAEkAHQBVAB4AXwAfAGUAIABrACEAcQAiAHcAIwB8ACYAfwAkAIAAJQCZACcAnQAoAG4AAABhAAwLQQcACPwADAcACEEHAAj8AA0HAAhAAf8ACQAEBwBvBwAIBwAIAQABBwAZAf8ARwABBwBvAAEHABn/AA8AAgcAbwcAGQABBwBS/wABAAIHAG8HABkAAgcAUgcACPoABwAKAB8AIAABAGwAAAAvAAMAAQAAABcqEloSXLYAJRJeEmC2ACUSYhJktgAlsAAAAAEAbQAAAAYAAQAAACsAAgAuAEkAAQBsAAAAHQABAAEAAAAFKrcAZrEAAAABAG0AAAAGAAEAAAAuAAMAcQAAAAIAcgBzAAAADgACAHgAAQB0AHgAAQB2AH4AAAAKAAEAfwCBAIMAGQ==";
+// @ts-check
 // lb-inject — runtime bytecode injection for LiquidBounce GraalJS scripts.
+//
+// Type-checked (`// @ts-check`) against nf-inject.d.ts (the public `InjectApi`)
+// and graaljs-env.d.ts (loose host-interop stubs). The `globalThis.Inject =
+// Inject` assignment below is what enforces the implementation matches the
+// shipped `.d.ts` — a missing/wrong public member is a compile error, so the
+// types can't drift. Run `npm run typecheck`.
 //
 //   load("/abs/path/nf-inject.js");           // defines globalThis.Inject
 //   var h = Inject.inject("net.minecraft.client.Minecraft", "getFps", "HEAD",
@@ -50,11 +57,20 @@ globalThis.__NF_TOAST_CLASS_B64 = "yv66vgAAAEEAhAgAAgEABElORk8IAAQBAAAIAAYBAAVFU
     // Normalize one declaration (used by module()/always()) into inject() args.
     // Accepts a tuple  [className, method, position, hook, target?]  or a
     // mixin-style object  { class|className, method, at|position, hook|run, target? }.
+    /**
+     * @param {InjectDecl | any} d
+     * @returns {any[]} inject() args: [className, method, position, hook, target?]
+     */
     function declToArgs(d) {
         if (Array.isArray(d)) return d;
         return [d["class"] || d.className, d.method, d.at || d.position, d.hook || d.run, d.target];
     }
 
+    // The public API, defined on globalThis.Inject. Conformance to the shipped
+    // public type (nf-inject.d.ts `InjectApi`) is enforced by the `_apiConformance`
+    // guard just before `globalThis.Inject = Inject` below — a missing or wrong
+    // public member is a compile error there. The object keeps its own (richer,
+    // with privates) inferred type here for internal use.
     const Inject = {
         VERSION,
         // Path to the precompiled generic agent jar (nf-holder.jar must sit next to
@@ -70,6 +86,7 @@ globalThis.__NF_TOAST_CLASS_B64 = "yv66vgAAAEEAhAgAAgEABElORk8IAAQBAAAIAAYBAAVFU
         jdkHome: null,
         // Set true to suppress the informational chat messages (errors still show).
         quiet: false,
+        /** @type {Record<string, { tr: any, id: number, internal: string }>} */
         _handles: {},
         _n: 0,
 
@@ -78,6 +95,7 @@ globalThis.__NF_TOAST_CLASS_B64 = "yv66vgAAAEEAhAgAAgEABElORk8IAAQBAAAIAAYBAAVFU
         // visible at the title screen — also a modal Swing message box the user
         // must click OK on (it blocks the game thread). The message box shows for
         // ERROR always, and for info/success unless Inject.quiet. Never throws.
+        /** @param {string} msg @param {InjectSeverity} [severity] @returns {boolean} */
         notify(msg, severity) {
             severity = severity || "INFO";
             const plain = ("" + msg).replace(/§./g, "");       // strip §color codes
@@ -101,6 +119,7 @@ globalThis.__NF_TOAST_CLASS_B64 = "yv66vgAAAEEAhAgAAgEABElORk8IAAQBAAAIAAYBAAVFU
         // so it has its own AWT event thread and reliably appears (an in-process
         // modal shown from Minecraft's render thread is flaky). Falls back to an
         // in-process modal if the helper bytecode isn't embedded. Best-effort.
+        /** @param {string} plain @param {string} severity */
         _dialog(plain, severity) {
             try {
                 const b64 = globalThis.__NF_TOAST_CLASS_B64;
@@ -191,6 +210,14 @@ globalThis.__NF_TOAST_CLASS_B64 = "yv66vgAAAEEAhAgAAgEABElORk8IAAQBAAAIAAYBAAVFU
             }
         },
 
+        /**
+         * @param {string} className
+         * @param {string} method
+         * @param {InjectPosition} position
+         * @param {InjectHook} hook
+         * @param {string} [invokeTarget]
+         * @returns {InjectHandle}
+         */
         inject(className, method, position, hook, invokeTarget) {
             this.ensure();
             const H = holder();
@@ -216,9 +243,10 @@ globalThis.__NF_TOAST_CLASS_B64 = "yv66vgAAAEEAhAgAAgEABElORk8IAAQBAAAIAAYBAAVFU
             }
             const handle = "inj#" + id;
             this._handles[handle] = { tr, id, internal };
-            return handle;
+            return /** @type {InjectHandle} */ (handle);
         },
 
+        /** @param {InjectHandle} handle @returns {string} */
         remove(handle) {
             const h = this._handles[handle];
             if (!h) return "no such handle: " + handle;
@@ -228,7 +256,8 @@ globalThis.__NF_TOAST_CLASS_B64 = "yv66vgAAAEEAhAgAAgEABElORk8IAAQBAAAIAAYBAAVFU
             delete this._handles[handle];
             return "removed " + handle;
         },
-        removeAll() { const ks = Object.keys(this._handles); ks.forEach((k) => this.remove(k)); return "removed " + ks.length; },
+        /** @returns {string} */
+        removeAll() { const ks = Object.keys(this._handles); ks.forEach((k) => this.remove(/** @type {InjectHandle} */ (k))); return "removed " + ks.length; },
         list() { return Object.keys(this._handles); },
 
         // Declarative, module-bound injection (mixin style). Declare the hooks
@@ -240,9 +269,17 @@ globalThis.__NF_TOAST_CLASS_B64 = "yv66vgAAAEEAhAgAAgEABElORk8IAAQBAAAIAAYBAAVFU
         //     ["net.minecraft.client.Minecraft", "tick", "RETURN", fn],
         //     { class: "net.minecraft.client.Minecraft", method: "getFps", at: "HEAD", hook: fn },
         //   ]);
+        /**
+         * @template {InjectModuleLike} M
+         * @param {M} mod
+         * @param {InjectDecl[]} decls
+         * @returns {M}
+         */
         module(mod, decls) {
+            /** @type {InjectHandle[]} */
             let handles = [];
-            mod.on("enable", () => { handles = decls.map((d) => this.inject.apply(this, declToArgs(d))); });
+            const inject = /** @type {(...a: any[]) => InjectHandle} */ (this.inject.bind(this));
+            mod.on("enable", () => { handles = decls.map((d) => inject(...declToArgs(d))); });
             mod.on("disable", () => { handles.forEach((h) => this.remove(h)); handles = []; });
             return mod;
         },
@@ -253,15 +290,20 @@ globalThis.__NF_TOAST_CLASS_B64 = "yv66vgAAAEEAhAgAAgEABElORk8IAAQBAAAIAAYBAAVFU
         // `.script reload` re-running the script doesn't stack duplicates. `decls`
         // is the same shape as module(). Returns the installed handles (or [] if
         // already installed this session).
+        /** @param {string} key @param {InjectDecl[]} decls @returns {InjectHandle[]} */
         always(key, decls) {
             const sentinel = "nf.always." + VERSION + "." + key;
             if (System_.getProperty(sentinel) !== null) return [];
-            const handles = decls.map((d) => this.inject.apply(this, declToArgs(d)));
+            const inject = /** @type {(...a: any[]) => InjectHandle} */ (this.inject.bind(this));
+            const handles = decls.map((d) => inject(...declToArgs(d)));
             System_.setProperty(sentinel, "true");
             return handles;
         },
     };
 
+    // This assignment is also the compile-time conformance check: `globalThis.Inject`
+    // is typed `InjectApi` (nf-inject.d.ts), so a missing or wrong public member on
+    // the object above is a type error here — the impl can't drift from the shipped .d.ts.
     globalThis.Inject = Inject;
 })();
 
