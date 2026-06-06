@@ -85,19 +85,30 @@ points that fire on other threads, pass a precompiled `java.lang.Runnable`.
 ## How `Instrumentation` is obtained (auto-detected)
 
 Bytecode injection needs a `java.lang.instrument.Instrumentation`. `Inject.ensure()`
-(called automatically on first `inject`) picks the right method:
+(called automatically on first `inject`) picks the right method. There are
+**three ways to use it:**
 
-1. **`-javaagent:nf-inject-agent.jar`** at launch → the agent's `premain` already
-   published everything. **Works on any JRE - no JDK, no attach.** Add it via the
-   launcher's custom JVM args.
-2. **A JDK runtime** (the `java.home` has the `jdk.attach` module, e.g. **GraalVM**
-   in LiquidLauncher) → the library spawns the bundled attacher to attach + load
-   the agent at runtime. No `-javaagent` flag needed.
-3. Neither → throws with guidance.
+1. **JDK runtime** (the running `java.home` has the `jdk.attach` module, e.g.
+   **GraalVM** in LiquidLauncher) → no flags, no extra paths. `ensure()` attaches
+   the agent to the running VM. Since **1.1.0** it first tries an **in-process
+   self-attach** (no subprocess), which works on LiquidBounce with the GraalVM
+   caller-sensitive fix ([`b759cac57`](https://github.com/CCBlueX/LiquidBounce/pull/8437)+);
+   on older clients it transparently falls back to (the same as) the external
+   attacher below.
+2. **JRE runtime + a JDK on the side** — set **`Inject.jdkHome`** to a JDK folder
+   (one containing `bin/java`). The library runs that JDK's `java` as the external
+   attacher to attach to the LiquidBounce process by pid and `loadAgent`. The
+   *attacher* supplies `jdk.attach`; the **target VM does not need it**, so this
+   lets you inject even when LiquidBounce itself runs on a plain JRE. *(New in 1.1.0.)*
+3. **`-javaagent:nf-inject-agent.jar`** at launch → the agent's `premain` publishes
+   everything before any script runs. **Works on any JRE - no JDK, no attach.**
+   Add it via the launcher's custom JVM args.
+
+If none apply, `ensure()` throws with guidance.
 
 > Of LiquidLauncher's Java options, **Temurin/Zulu JREs lack `jdk.attach`** (and
-> `jdk.compiler`), so on those the **`-javaagent` route is required**; **GraalVM**
-> (a JDK) supports the runtime-attach route directly.
+> `jdk.compiler`), so on those use route **2** (`Inject.jdkHome`) or **3**
+> (`-javaagent`); **GraalVM** (a JDK) supports route **1** directly.
 
 The injected bytecode calls into the bootstrap-loaded `NfHolder.fire(<id>)` - so
 the patched class (loaded by Fabric's Knot loader) resolves nothing but a
