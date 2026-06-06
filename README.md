@@ -82,6 +82,40 @@ point. A JS function runs on whatever thread the patched method runs on, so it's
 safe for points on the client/render thread (ticks, render, `getFps`, …). For
 points that fire on other threads, pass a precompiled `java.lang.Runnable`.
 
+## Declarative (mixin-style) usage
+
+`Inject.inject`/`remove` are imperative. If you'd rather **declare** hooks like a
+mixin — once, not hand-wired into `enable`/`disable` — there are two helpers
+*(since 1.1.0)*. Each declaration is a tuple `[className, method, position, hook,
+target?]` or an object `{ class, method, at, hook, target? }`.
+
+**Bound to a module** — applied on enable, removed on disable, automatically:
+
+```js
+script.registerModule({ name: "TickSpy", category: "Misc" }, (mod) => {
+    Inject.module(mod, [
+        ["net.minecraft.client.Minecraft", "tick",   "RETURN", () => {/* … */}],
+        { class: "net.minecraft.client.Minecraft", method: "getFps", at: "HEAD", hook: () => {/* … */} },
+    ]);
+});
+```
+
+**Always-on** — applied once and kept for the whole session (the closest thing to
+a statically-declared mixin). The `key` namespaces an idempotency sentinel so a
+`.script reload` doesn't stack duplicates:
+
+```js
+registerScript({ name: "Heartbeat", version: "1.0.0", authors: ["you"] });
+Inject.always("heartbeat", [
+    ["net.minecraft.client.Minecraft", "tick", "RETURN", () => {/* every tick, all session */}],
+]);
+```
+
+> Not a load-time mixin: these `retransform` an already-loaded class, so a method
+> that only runs **once at startup before your script loads** isn't caught (a real
+> mixin would). For anything called repeatedly there's no difference. And the hook
+> ABI is a no-arg `Runnable` — HEAD/RETURN/INVOKE/FIELD, not `@ModifyArg`/`@Redirect`.
+
 ## How `Instrumentation` is obtained (auto-detected)
 
 Bytecode injection needs a `java.lang.instrument.Instrumentation`. `Inject.ensure()`

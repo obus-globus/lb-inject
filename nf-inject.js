@@ -46,6 +46,14 @@
     // throws (class not found), which we treat as "not loaded yet".
     function holder() { try { return Java.type("NfHolder"); } catch (e) { return null; } }
 
+    // Normalize one declaration (used by module()/always()) into inject() args.
+    // Accepts a tuple  [className, method, position, hook, target?]  or a
+    // mixin-style object  { class|className, method, at|position, hook|run, target? }.
+    function declToArgs(d) {
+        if (Array.isArray(d)) return d;
+        return [d["class"] || d.className, d.method, d.at || d.position, d.hook || d.run, d.target];
+    }
+
     const Inject = {
         VERSION,
         // Path to the precompiled generic agent jar (nf-holder.jar must sit next to
@@ -221,6 +229,36 @@
         },
         removeAll() { const ks = Object.keys(this._handles); ks.forEach((k) => this.remove(k)); return "removed " + ks.length; },
         list() { return Object.keys(this._handles); },
+
+        // Declarative, module-bound injection (mixin style). Declare the hooks
+        // ONCE; they're applied when the module is enabled and removed when it's
+        // disabled — no manual on("enable")/on("disable") wiring. `decls` is an
+        // array of tuples [className, method, position, hook, target?] or objects
+        // { class, method, at, hook, target? }. Returns `mod` (chainable).
+        //   Inject.module(mod, [
+        //     ["net.minecraft.client.Minecraft", "tick", "RETURN", fn],
+        //     { class: "net.minecraft.client.Minecraft", method: "getFps", at: "HEAD", hook: fn },
+        //   ]);
+        module(mod, decls) {
+            let handles = [];
+            mod.on("enable", () => { handles = decls.map((d) => this.inject.apply(this, declToArgs(d))); });
+            mod.on("disable", () => { handles.forEach((h) => this.remove(h)); handles = []; });
+            return mod;
+        },
+
+        // Declarative, always-on injection (mixin style). Apply the declared hooks
+        // once and keep them for the whole game session — the closest thing to a
+        // statically-declared mixin. `key` namespaces an idempotency sentinel so a
+        // `.script reload` re-running the script doesn't stack duplicates. `decls`
+        // is the same shape as module(). Returns the installed handles (or [] if
+        // already installed this session).
+        always(key, decls) {
+            const sentinel = "nf.always." + VERSION + "." + key;
+            if (System_.getProperty(sentinel) !== null) return [];
+            const handles = decls.map((d) => this.inject.apply(this, declToArgs(d)));
+            System_.setProperty(sentinel, "true");
+            return handles;
+        },
     };
 
     globalThis.Inject = Inject;
